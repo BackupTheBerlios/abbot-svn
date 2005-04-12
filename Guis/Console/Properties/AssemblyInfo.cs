@@ -22,7 +22,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 #endregion
 
-[assembly: AssemblyTitle("Log Plugin")]
-[assembly: AssemblyDescription("A plugin for the Abbot IRC Bot. Visit http://abbot.berlios.de for information.")]
+[assembly: AssemblyTitle("Console GUI for the Abbot IRC Bot")]
+[assembly: AssemblyDescription("A simple Console GUI for the Abbot IRC Bot.")]
 [assembly: AssemblyCompany("Hannes Sachsenhofer")]
+[assembly: AssemblyCopyright("Copyright @  2005")]
+
 [assembly: AssemblyVersion("1.0.0.*")]

@@ -18,11 +18,20 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 #region Using directives
-using System.Reflection;
-using System.Runtime.CompilerServices;
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
 #endregion
 
-[assembly: AssemblyTitle("Log Plugin")]
-[assembly: AssemblyDescription("A plugin for the Abbot IRC Bot. Visit http://abbot.berlios.de for information.")]
-[assembly: AssemblyCompany("Hannes Sachsenhofer")]
-[assembly: AssemblyVersion("1.0.0.*")]
+namespace Abbot {
+	class Program {
+
+		static void Main(string[] args) {
+			Abbot bot = new Abbot();
+			bot.ConnectAll();
+		}
+
+	}
+}

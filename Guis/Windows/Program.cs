@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 #endregion
 
-namespace AbbotForWindows {
+namespace Abbot {
 	static class Program {
 
 		[STAThread]

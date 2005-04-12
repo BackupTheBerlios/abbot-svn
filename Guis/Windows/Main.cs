@@ -27,17 +27,19 @@ using System.Windows.Forms;
 using System.Xml;
 #endregion
 
-namespace AbbotForWindows {
+namespace Abbot {
 	partial class frmMain : Form {
 
 		delegate void EmptyDelegate();
-		Abbot.Abbot bot;
+		Abbot bot;
 		System.IO.StringWriter writer;
 		System.Threading.Thread thread;
+
 
 		public frmMain() {
 			InitializeComponent();
 		}
+
 
 		private void icoIcon_MouseDown(object sender, MouseEventArgs e) {
 			if (e.Button == MouseButtons.Left) {
@@ -52,9 +54,11 @@ namespace AbbotForWindows {
 			}
 		}
 
+
 		private void btnClose_Click(object sender, EventArgs e) {
 			Application.Exit();
 		}
+
 
 		private void frmMain_Load(object sender, EventArgs e) {
 			writer = new System.IO.StringWriter();
@@ -65,12 +69,13 @@ namespace AbbotForWindows {
 			txtLog.TextChanged += new EventHandler(txtLog_TextChanged);
 			txtMessage.KeyDown+=new KeyEventHandler(txtMessage_KeyDown);
 
-			bot = new Abbot.Abbot();
+			bot = new Abbot();
 			bot.ConnectAll();
 
 			thread = new System.Threading.Thread(new System.Threading.ThreadStart(Log));
 			thread.Start();
 		}
+
 
 		void Log() {
 			while (true) {
@@ -78,6 +83,7 @@ namespace AbbotForWindows {
 				UpdateLog();
 			}
 		}
+
 
 		void UpdateLog() {
 			if (InvokeRequired) {
@@ -102,11 +108,13 @@ namespace AbbotForWindows {
 			this.Visible = false;
 		}
 
+
 		void txtLog_TextChanged(object sender, EventArgs e) {
 			txtLog.SelectionStart = txtLog.Text.Length;
 			txtLog.ScrollToCaret();
 			this.Focus();
 		}
+
 
 		void txtMessage_KeyDown(object sender, KeyEventArgs e) {
 			if (e.KeyCode == Keys.Enter) {
@@ -115,9 +123,10 @@ namespace AbbotForWindows {
 			}
 		}
 
-		private void optionsToolStripMenuItemOptions_Click(object sender, EventArgs e)
-		{
-			( new Options() ).ShowDialog( this );
+
+		private void optionsToolStripMenuItemOptions_Click(object sender, EventArgs e) {
+			(new Options()).ShowDialog(this);
 		}
+
 	}
 }
