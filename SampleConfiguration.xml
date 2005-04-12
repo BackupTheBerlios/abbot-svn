@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Abbot>
-  <Nick>Abbot23</Nick>
+  <Nick>Abbot</Nick>
   <Server>
-    <Network>IRCnet</Network>
-    <Name>linz.ircnet.at</Name>
-    <Address>linz.ircnet.at</Address>
+    <Network>IRCNetworkName</Network>
+    <Name>IRC Server Name here</Name>
+    <Address>irc.network.com</Address>
     <Port>6667</Port>
     <Channel>
-      <Name>#fridolin</Name>
+      <Name>#channel</Name>
       <Password>
       </Password>
     </Channel>
@@ -15,10 +15,7 @@
   <Plugins>
     <AutoOp>
       <Op>.*?!~saxx@.*\.at</Op>
-      <Op>.*?!~cypher@.*\.at</Op>
-      <Op>.*?!~guenti@fnarnreit60\.netpark\.at</Op>
-      <Op>.*?!~Pendi@.*\.at</Op>
-      <DeOp>Wi_g____gles</DeOp>
+      <DeOp>lamer</DeOp>
     </AutoOp>
   </Plugins>
 </Abbot>
