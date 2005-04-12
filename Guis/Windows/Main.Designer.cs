@@ -45,14 +45,16 @@ namespace AbbotForWindows {
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( frmMain ) );
 			this.txtLog = new System.Windows.Forms.TextBox();
 			this.icoIcon = new System.Windows.Forms.NotifyIcon( this.components );
-			this.mnuMenu = new System.Windows.Forms.ContextMenuStrip( this.components );
+			this.mnuSysMenu = new System.Windows.Forms.ContextMenuStrip( this.components );
 			this.btnClose = new System.Windows.Forms.ToolStripMenuItem();
+			this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.optionsToolStripMenuItemOptions = new System.Windows.Forms.ToolStripMenuItem();
 			this.leftRaftingContainer = new System.Windows.Forms.RaftingContainer();
 			this.rightRaftingContainer = new System.Windows.Forms.RaftingContainer();
 			this.topRaftingContainer = new System.Windows.Forms.RaftingContainer();
 			this.bottomRaftingContainer = new System.Windows.Forms.RaftingContainer();
 			this.txtMessage = new System.Windows.Forms.TextBox();
-			this.mnuMenu.SuspendLayout();
+			this.mnuSysMenu.SuspendLayout();
 			( (System.ComponentModel.ISupportInitialize) ( this.leftRaftingContainer ) ).BeginInit();
 			( (System.ComponentModel.ISupportInitialize) ( this.rightRaftingContainer ) ).BeginInit();
 			( (System.ComponentModel.ISupportInitialize) ( this.topRaftingContainer ) ).BeginInit();
@@ -78,19 +80,21 @@ namespace AbbotForWindows {
 // 
 // icoIcon
 // 
-			this.icoIcon.ContextMenuStrip = this.mnuMenu;
+			this.icoIcon.ContextMenuStrip = this.mnuSysMenu;
 			this.icoIcon.Text = "Abbot";
 			this.icoIcon.Visible = true;
 			this.icoIcon.MouseDown += new System.Windows.Forms.MouseEventHandler( this.icoIcon_MouseDown );
 // 
-// mnuMenu
+// mnuSysMenu
 // 
-			this.mnuMenu.AllowDrop = true;
-			this.mnuMenu.Items.AddRange( new System.Windows.Forms.ToolStripItem[] {
-				this.btnClose
-			} );
-			this.mnuMenu.Location = new System.Drawing.Point( 23, 54 );
-			this.mnuMenu.Name = "mnuMenu";
+			this.mnuSysMenu.AllowDrop = true;
+			this.mnuSysMenu.Items.AddRange( new System.Windows.Forms.ToolStripItem[] {
+            this.btnClose,
+            this.optionsToolStripMenuItem,
+            this.optionsToolStripMenuItemOptions} );
+			this.mnuSysMenu.Location = new System.Drawing.Point( 23, 54 );
+			this.mnuSysMenu.Name = "mnuMenu";
+			this.mnuSysMenu.Size = new System.Drawing.Size( 102, 67 );
 // 
 // btnClose
 // 
@@ -98,6 +102,20 @@ namespace AbbotForWindows {
 			this.btnClose.SettingsKey = "frmMain.toolStripMenuItem2";
 			this.btnClose.Text = "Close";
 			this.btnClose.Click += new System.EventHandler( this.btnClose_Click );
+// 
+// optionsToolStripMenuItem
+// 
+			this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
+			this.optionsToolStripMenuItem.SettingsKey = "frmMain.optionsToolStripMenuItem";
+			this.optionsToolStripMenuItem.Text = "Options";
+// 
+// optionsToolStripMenuItemOptions
+// 
+			this.optionsToolStripMenuItemOptions.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.optionsToolStripMenuItemOptions.Name = "optionsToolStripMenuItemOptions";
+			this.optionsToolStripMenuItemOptions.SettingsKey = "frmMain.optionsToolStripMenuItemOptions";
+			this.optionsToolStripMenuItemOptions.Text = "Options";
+			this.optionsToolStripMenuItemOptions.Click += new System.EventHandler( this.optionsToolStripMenuItemOptions_Click );
 // 
 // leftRaftingContainer
 // 
@@ -144,7 +162,7 @@ namespace AbbotForWindows {
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Abbot: The petite IRC bot";
 			this.Load += new System.EventHandler( this.frmMain_Load );
-			this.mnuMenu.ResumeLayout( false );
+			this.mnuSysMenu.ResumeLayout( false );
 			( (System.ComponentModel.ISupportInitialize) ( this.leftRaftingContainer ) ).EndInit();
 			( (System.ComponentModel.ISupportInitialize) ( this.rightRaftingContainer ) ).EndInit();
 			( (System.ComponentModel.ISupportInitialize) ( this.topRaftingContainer ) ).EndInit();
@@ -162,9 +180,11 @@ namespace AbbotForWindows {
 		private System.Windows.Forms.RaftingContainer rightRaftingContainer;
 		private System.Windows.Forms.RaftingContainer topRaftingContainer;
 		private System.Windows.Forms.RaftingContainer bottomRaftingContainer;
-		private System.Windows.Forms.ContextMenuStrip mnuMenu;
+		private System.Windows.Forms.ContextMenuStrip mnuSysMenu;
 		private System.Windows.Forms.ToolStripMenuItem btnClose;
 		private System.Windows.Forms.TextBox txtMessage;
+		private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItemOptions;
 	}
 }
 

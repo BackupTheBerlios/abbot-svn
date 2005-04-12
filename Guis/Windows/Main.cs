@@ -114,5 +114,10 @@ namespace AbbotForWindows {
 				txtMessage.Text = "";
 			}
 		}
+
+		private void optionsToolStripMenuItemOptions_Click(object sender, EventArgs e)
+		{
+			( new Options() ).ShowDialog( this );
+		}
 	}
 }
