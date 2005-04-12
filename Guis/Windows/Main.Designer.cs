@@ -42,10 +42,10 @@ namespace AbbotForWindows {
 		/// </summary>
 		private void InitializeComponent() {
 			this.components = new System.ComponentModel.Container();
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( frmMain ) );
 			this.txtLog = new System.Windows.Forms.TextBox();
-			this.icoIcon = new System.Windows.Forms.NotifyIcon(this.components);
-			this.mnuMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.icoIcon = new System.Windows.Forms.NotifyIcon( this.components );
+			this.mnuMenu = new System.Windows.Forms.ContextMenuStrip( this.components );
 			this.btnClose = new System.Windows.Forms.ToolStripMenuItem();
 			this.leftRaftingContainer = new System.Windows.Forms.RaftingContainer();
 			this.rightRaftingContainer = new System.Windows.Forms.RaftingContainer();
@@ -53,44 +53,43 @@ namespace AbbotForWindows {
 			this.bottomRaftingContainer = new System.Windows.Forms.RaftingContainer();
 			this.txtMessage = new System.Windows.Forms.TextBox();
 			this.mnuMenu.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.leftRaftingContainer)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.rightRaftingContainer)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.topRaftingContainer)).BeginInit();
-			((System.ComponentModel.ISupportInitialize)(this.bottomRaftingContainer)).BeginInit();
+			( (System.ComponentModel.ISupportInitialize) ( this.leftRaftingContainer ) ).BeginInit();
+			( (System.ComponentModel.ISupportInitialize) ( this.rightRaftingContainer ) ).BeginInit();
+			( (System.ComponentModel.ISupportInitialize) ( this.topRaftingContainer ) ).BeginInit();
+			( (System.ComponentModel.ISupportInitialize) ( this.bottomRaftingContainer ) ).BeginInit();
 			this.SuspendLayout();
 // 
 // txtLog
 // 
-			this.txtLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-						| System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			this.txtLog.Anchor = ( (System.Windows.Forms.AnchorStyles) ( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
+						| System.Windows.Forms.AnchorStyles.Left )
+						| System.Windows.Forms.AnchorStyles.Right ) ) );
 			this.txtLog.AutoSize = false;
 			this.txtLog.BackColor = System.Drawing.Color.White;
-			this.txtLog.Font = new System.Drawing.Font("Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-			this.txtLog.Location = new System.Drawing.Point(0, 25);
+			this.txtLog.Font = new System.Drawing.Font( "Courier New", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte) ( 0 ) ) );
+			this.txtLog.Location = new System.Drawing.Point( 0, 25 );
 			this.txtLog.Multiline = true;
 			this.txtLog.Name = "txtLog";
 			this.txtLog.ReadOnly = true;
 			this.txtLog.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-			this.txtLog.Size = new System.Drawing.Size(751, 425);
+			this.txtLog.Size = new System.Drawing.Size( 751, 425 );
 			this.txtLog.TabIndex = 0;
 			this.txtLog.WordWrap = false;
 // 
 // icoIcon
 // 
 			this.icoIcon.ContextMenuStrip = this.mnuMenu;
-			this.icoIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("icoIcon.Icon")));
 			this.icoIcon.Text = "Abbot";
 			this.icoIcon.Visible = true;
-			this.icoIcon.MouseDown += new System.Windows.Forms.MouseEventHandler(this.icoIcon_MouseDown);
+			this.icoIcon.MouseDown += new System.Windows.Forms.MouseEventHandler( this.icoIcon_MouseDown );
 // 
 // mnuMenu
 // 
 			this.mnuMenu.AllowDrop = true;
-			this.mnuMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.mnuMenu.Items.AddRange( new System.Windows.Forms.ToolStripItem[] {
 				this.btnClose
-			});
-			this.mnuMenu.Location = new System.Drawing.Point(23, 54);
+			} );
+			this.mnuMenu.Location = new System.Drawing.Point( 23, 54 );
 			this.mnuMenu.Name = "mnuMenu";
 // 
 // btnClose
@@ -98,7 +97,7 @@ namespace AbbotForWindows {
 			this.btnClose.Name = "btnClose";
 			this.btnClose.SettingsKey = "frmMain.toolStripMenuItem2";
 			this.btnClose.Text = "Close";
-			this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
+			this.btnClose.Click += new System.EventHandler( this.btnClose_Click );
 // 
 // leftRaftingContainer
 // 
@@ -122,36 +121,35 @@ namespace AbbotForWindows {
 // 
 // txtMessage
 // 
-			this.txtMessage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-						| System.Windows.Forms.AnchorStyles.Right)));
+			this.txtMessage.Anchor = ( (System.Windows.Forms.AnchorStyles) ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left )
+						| System.Windows.Forms.AnchorStyles.Right ) ) );
 			this.txtMessage.AutoSize = false;
-			this.txtMessage.Location = new System.Drawing.Point(0, 2);
+			this.txtMessage.Location = new System.Drawing.Point( 0, 2 );
 			this.txtMessage.Name = "txtMessage";
-			this.txtMessage.Size = new System.Drawing.Size(750, 20);
+			this.txtMessage.Size = new System.Drawing.Size( 750, 20 );
 			this.txtMessage.TabIndex = 6;
 // 
 // frmMain
 // 
-			this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
-			this.ClientSize = new System.Drawing.Size(751, 450);
-			this.ControlBox = false;
-			this.Controls.Add(this.txtMessage);
-			this.Controls.Add(this.txtLog);
-			this.Controls.Add(this.leftRaftingContainer);
-			this.Controls.Add(this.rightRaftingContainer);
-			this.Controls.Add(this.topRaftingContainer);
-			this.Controls.Add(this.bottomRaftingContainer);
-			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+			this.AutoScaleBaseSize = new System.Drawing.Size( 5, 13 );
+			this.ClientSize = new System.Drawing.Size( 751, 450 );
+			this.Controls.Add( this.txtMessage );
+			this.Controls.Add( this.txtLog );
+			this.Controls.Add( this.leftRaftingContainer );
+			this.Controls.Add( this.rightRaftingContainer );
+			this.Controls.Add( this.topRaftingContainer );
+			this.Controls.Add( this.bottomRaftingContainer );
+			this.Icon = ( (System.Drawing.Icon) ( resources.GetObject( "$this.Icon" ) ) );
 			this.Name = "frmMain";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Abbot: The petite IRC bot";
-			this.Load += new System.EventHandler(this.frmMain_Load);
-			this.mnuMenu.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.leftRaftingContainer)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.rightRaftingContainer)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.topRaftingContainer)).EndInit();
-			((System.ComponentModel.ISupportInitialize)(this.bottomRaftingContainer)).EndInit();
-			this.ResumeLayout(false);
+			this.Load += new System.EventHandler( this.frmMain_Load );
+			this.mnuMenu.ResumeLayout( false );
+			( (System.ComponentModel.ISupportInitialize) ( this.leftRaftingContainer ) ).EndInit();
+			( (System.ComponentModel.ISupportInitialize) ( this.rightRaftingContainer ) ).EndInit();
+			( (System.ComponentModel.ISupportInitialize) ( this.topRaftingContainer ) ).EndInit();
+			( (System.ComponentModel.ISupportInitialize) ( this.bottomRaftingContainer ) ).EndInit();
+			this.ResumeLayout( false );
 			this.PerformLayout();
 
 		}
