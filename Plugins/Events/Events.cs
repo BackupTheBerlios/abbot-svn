@@ -223,7 +223,7 @@ namespace Abbot.Plugins {
 						nick = GetNickFromUser(user);
 					Remove(nick, e);
 					e.There.Add(nick);
-					Bot.WriteNotice(network, GetNickFromUser(user), "You added '" + nick + "' to 'there'.");
+					Bot.WriteNotice( network, GetNickFromUser( user ), "You added '" + nick + "' as 'there' to event [" + int.Parse( m.Groups["event"].Value ) + "]." );
 					Save();
 					return;
 				}
@@ -237,7 +237,7 @@ namespace Abbot.Plugins {
 						nick = GetNickFromUser(user);
 					Remove(nick, e);
 					e.NotThere.Add(nick);
-					Bot.WriteNotice(network, GetNickFromUser(user), "You added '" + nick + "' to 'not there'.");
+					Bot.WriteNotice( network, GetNickFromUser( user ), "You added '" + nick + "' as 'not there' to event [" + int.Parse( m.Groups["event"].Value ) + "]." );
 					Save();
 					return;
 				}
@@ -251,7 +251,7 @@ namespace Abbot.Plugins {
 						nick = GetNickFromUser(user);
 					Remove(nick, e);
 					e.MaybeThere.Add(nick);
-					Bot.WriteNotice(network, GetNickFromUser(user), "You added '" + nick + "' to 'maybe there'.");
+					Bot.WriteNotice(network, GetNickFromUser(user), "You added '" + nick + "' as 'maybe there' to event [" + int.Parse(m.Groups["event"].Value) + "].");
 					Save();
 					return;
 				}
