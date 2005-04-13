@@ -37,7 +37,23 @@ namespace Abbot {
 
 		#region " Methods "
 		public void BadSyntax(string network, string user) {
-			Bot.WriteNotice(network, Helper.GetNickFromUser(user), "Bad syntax.");
+			Bot.WriteNotice(network, GetNickFromUser(user), "Bad syntax.");
+		}
+
+		public static string GetNickFromUser(string user) {
+			return user.Substring(0, user.IndexOf("!"));
+		}
+
+		public static string GetIdentFromUser(string user) {
+			user = user.Substring(user.IndexOf("!") + 1);
+			return user.Substring(0, user.IndexOf("@"));
+		}
+
+		public static string Format(int i) {
+			if (i >= 10)
+				return i.ToString();
+			else
+				return "0" + i.ToString();
 		}
 		#endregion
 	}

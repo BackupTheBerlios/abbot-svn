@@ -57,8 +57,8 @@ namespace Abbot.Plugins {
 		}
 
 		void NewSeen(string network, string user, string text) {
-			string nick = Helper.GetNickFromUser(user);
-			string ident = Helper.GetIdentFromUser(user);
+			string nick = GetNickFromUser(user);
+			string ident = GetIdentFromUser(user);
 			SeenInfo i = FindIdent(network, ident);
 			if (i == null) {
 				i = new SeenInfo(network, ident, text);
@@ -168,14 +168,14 @@ namespace Abbot.Plugins {
 					string name = message.Substring(message.IndexOf(" ") + 1);
 					SeenInfo i = FindName(network, name);
 					if (i == null) {
-						Bot.WriteNotice(network, Helper.GetNickFromUser(user), "I never saw a '" + name + "' before.");
+						Bot.WriteNotice(network, GetNickFromUser(user), "I never saw a '" + name + "' before.");
 					}
-					else if (i.Ident == Helper.GetIdentFromUser(user)) {
-						Bot.WriteNotice(network, Helper.GetNickFromUser(user), "Looking for yourself?");
+					else if (i.Ident == GetIdentFromUser(user)) {
+						Bot.WriteNotice(network, GetNickFromUser(user), "Looking for yourself?");
 					}
 					else {
 						TimeSpan t = (TimeSpan)(DateTime.Now - i.Date);
-						Bot.WriteNotice(network, Helper.GetNickFromUser(user), "I saw " + name + " " + Convert.ToInt16(t.TotalHours).ToString() + " hours, " + t.Minutes.ToString() + " minutes and " + t.Seconds.ToString() + " seconds ago, " + i.Text + ".");
+						Bot.WriteNotice(network, GetNickFromUser(user), "I saw " + name + " " + Convert.ToInt16(t.TotalHours).ToString() + " hours, " + t.Minutes.ToString() + " minutes and " + t.Seconds.ToString() + " seconds ago, " + i.Text + ".");
 					}
 				}
 			} catch {
@@ -196,7 +196,7 @@ namespace Abbot.Plugins {
 		}
 
 		void Bot_UserChangesNick(string network, string user, string newNick) {
-			NewSeen(network, user, "changing his nick from " + Helper.GetNickFromUser(user) + " to " + newNick);
+			NewSeen(network, user, "changing his nick from " + GetNickFromUser(user) + " to " + newNick);
 		}
 		#endregion
 

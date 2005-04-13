@@ -65,7 +65,7 @@ namespace Abbot {
 
 			foreach (XmlElement e in Configuration.ChildNodes)
 				if (e.Name == "Server") {
-					Server s = new Server(e["Network"].InnerText, e["Name"].InnerText, e["Address"].InnerText, int.Parse(e["Port"].InnerText));
+					Server s = new Server(this,e["Network"].InnerText, e["Name"].InnerText, e["Address"].InnerText, int.Parse(e["Port"].InnerText));
 					foreach (XmlElement f in e.ChildNodes)
 						if (f.Name == "Channel")
 							s.Channels.Add(new Channel(f["Name"].InnerText, f["Password"].InnerText));
@@ -90,6 +90,7 @@ namespace Abbot {
 		}
 
 		~Abbot() {
+			ShutDownBot();
 			SaveConfiguration();
 		}
 		#endregion
@@ -141,12 +142,12 @@ namespace Abbot {
 
 		public void ConnectAll() {
 			foreach (Server s in servers)
-				s.ConnectServer(this);
+				s.Connect();
 		}
 
 		public void DisconnectAll() {
 			foreach (Server s in servers)
-				s.DisconnectServer();
+				s.Disconnect();
 		}
 
 		public void ShutDownBot() {
@@ -158,15 +159,38 @@ namespace Abbot {
 		void AddServer(Server s) {
 			if (!servers.Contains(s)) {
 				servers.Add(s);
-				s.Connect += new ConnectEventHandler(HandleConnect);
-				s.Join += new JoinEventHandler(HandleJoin);
-				s.Disconnect += new DisconnectEventHandler(HandleDisconnect);
+				s.OnConnect += new ConnectEventHandler(HandleConnect);
+				s.OnJoin += new JoinEventHandler(HandleJoin);
+				s.OnDisconnect += new DisconnectEventHandler(HandleDisconnect);
 				s.GenericMessage += new GenericMessageEventHandler(HandleGenericMessage);
 			}
 		}
 
 		public void SaveConfiguration() {
 			configuration.Save("Configuration.xml");
+		}
+#endregion
+
+		#region " Static methods "
+		public static string GetReturnCode(string s) {
+			Regex r = new Regex(@".*? (?<Code>\d\d\d) .*");
+			if (r.IsMatch(s))
+				return r.Match(s).Groups["Code"].Value;
+			throw new ArgumentException("Unable to find return code.");
+		}
+
+		internal static string GetChannel(string text) {
+			return text.Substring(0, text.IndexOf(" "));
+		}
+
+
+		internal static string GetMode(string text) {
+			return text.Substring(text.IndexOf(" ") + 1);
+		}
+
+
+		internal static string GetMessage(string text) {
+			return text.Substring(text.IndexOf(" :") + 2);
 		}
 		#endregion
 
@@ -187,6 +211,8 @@ namespace Abbot {
 		}
 
 		void HandleGenericMessage(string network, string message) {
+			Console.WriteLine(message);
+
 			if (message.StartsWith("PING")) {
 				Write(network, "PONG " + message.Substring(message.IndexOf(":") + 1));
 				return;
@@ -201,38 +227,38 @@ namespace Abbot {
 				#region " Message "
 				if (m.Groups["command"].Value == "PRIVMSG") {
 					if (Message != null)
-						Message(network, Helper.getChannel(m.Groups["text"].Value), m.Groups["user"].Value, Helper.getMessage(m.Groups["text"].Value));
+						Message(network, GetChannel(m.Groups["text"].Value), m.Groups["user"].Value, GetMessage(m.Groups["text"].Value));
 				}
 				#endregion
 				#region " Notice "
 				else if (m.Groups["command"].Value == "NOTICE") {
 					if (Notice != null)
-						Notice(network, m.Groups["user"].Value, Helper.getMessage(m.Groups["text"].Value));
+						Notice(network, m.Groups["user"].Value, GetMessage(m.Groups["text"].Value));
 				}
 				#endregion
 				#region " UserLeaves "
 				else if (m.Groups["command"].Value == "PART") {
 					if (UserLeaves != null)
-						UserLeaves(network, Helper.getChannel(m.Groups["text"].Value), m.Groups["user"].Value, Helper.getMessage(m.Groups["text"].Value));
+						UserLeaves(network, GetChannel(m.Groups["text"].Value), m.Groups["user"].Value, GetMessage(m.Groups["text"].Value));
 				}
 				#endregion
 				#region " UserQuits "
 				else if (m.Groups["command"].Value == "QUIT") {
 					if (UserQuits != null)
-						UserQuits(network, m.Groups["user"].Value, Helper.getMessage(m.Groups["text"].Value));
+						UserQuits(network, m.Groups["user"].Value, GetMessage(m.Groups["text"].Value));
 				}
 				#endregion
 				#region " UserJoins "
 				else if (m.Groups["command"].Value == "JOIN") {
 					if (UserJoins != null)
-						UserJoins(network, Helper.getMessage(m.Groups["text"].Value), m.Groups["user"].Value);
+						UserJoins(network, GetMessage(m.Groups["text"].Value), m.Groups["user"].Value);
 				}
 				#endregion
 				#region " ModeChange "
 				else if (m.Groups["command"].Value == "MODE") {
-					string channel = Helper.getChannel(m.Groups["text"].Value);
+					string channel = GetChannel(m.Groups["text"].Value);
 					string user = m.Groups["user"].Value;
-					string mode = Helper.getMode(m.Groups["text"].Value);
+					string mode = GetMode(m.Groups["text"].Value);
 					if (ModeChange != null)
 						ModeChange(network, channel, user, mode);
 					if (mode.IndexOf(" ") >= 0) {

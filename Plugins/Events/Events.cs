@@ -169,7 +169,7 @@ namespace Abbot.Plugins {
 		#region " Event Handles "
 		void Bot_UserJoins(string network, string channel, string user) {
 			DeleteOldEvents();
-			Bot.WriteNotice(network, Helper.GetNickFromUser(user), Helper.GetNickFromUser(user) + ", there are " + eventInfos.Count + " upcoming events.");
+			Bot.WriteNotice(network, GetNickFromUser(user), GetNickFromUser(user) + ", there are " + eventInfos.Count + " upcoming events.");
 		}
 
 		void Bot_Message(string network, string channel, string user, string message) {
@@ -196,8 +196,8 @@ namespace Abbot.Plugins {
 					if (notThere.Length > 0)
 						notThere = notThere.Substring(0, notThere.Length - 2);
 
-					Bot.WriteNotice(network, Helper.GetNickFromUser(user), "[" + i.ToString() + "] - " + e.Text + " - scheduled for " + e.Date.ToLongDateString() + " " + e.Date.ToShortTimeString());
-					Bot.WriteNotice(network, Helper.GetNickFromUser(user), "there: " + there + " - maybe there: " + maybeThere + " - not there: " + notThere);
+					Bot.WriteNotice(network, GetNickFromUser(user), "[" + i.ToString() + "] - " + e.Text + " - scheduled for " + e.Date.ToLongDateString() + " " + e.Date.ToShortTimeString());
+					Bot.WriteNotice(network, GetNickFromUser(user), "there: " + there + " - maybe there: " + maybeThere + " - not there: " + notThere);
 					i++;
 				}
 				return;
@@ -209,7 +209,7 @@ namespace Abbot.Plugins {
 					Match m = r.Match(message);
 					DateTime d = new DateTime(int.Parse(m.Groups["year"].Value), int.Parse(m.Groups["month"].Value), int.Parse(m.Groups["day"].Value), int.Parse(m.Groups["hour"].Value), int.Parse(m.Groups["minute"].Value), 0);
 					eventInfos.Add(new EventInfo(d, m.Groups["text"].Value));
-					Bot.WriteNotice(network, Helper.GetNickFromUser(user), "The event has been added.");
+					Bot.WriteNotice(network, GetNickFromUser(user), "The event has been added.");
 					Save();
 					return;
 				}
@@ -220,10 +220,10 @@ namespace Abbot.Plugins {
 					EventInfo e = eventInfos[int.Parse(m.Groups["event"].Value)];
 					string nick = m.Groups["nick"].Value;
 					if (nick.ToLower() == "me")
-						nick = Helper.GetNickFromUser(user);
+						nick = GetNickFromUser(user);
 					Remove(nick, e);
 					e.There.Add(nick);
-					Bot.WriteNotice(network, Helper.GetNickFromUser(user), "You added '" + nick + "' to 'there'.");
+					Bot.WriteNotice(network, GetNickFromUser(user), "You added '" + nick + "' to 'there'.");
 					Save();
 					return;
 				}
@@ -234,10 +234,10 @@ namespace Abbot.Plugins {
 					EventInfo e = eventInfos[int.Parse(m.Groups["event"].Value)];
 					string nick = m.Groups["nick"].Value;
 					if (nick.ToLower() == "me")
-						nick = Helper.GetNickFromUser(user);
+						nick = GetNickFromUser(user);
 					Remove(nick, e);
 					e.NotThere.Add(nick);
-					Bot.WriteNotice(network, Helper.GetNickFromUser(user), "You added '" + nick + "' to 'not there'.");
+					Bot.WriteNotice(network, GetNickFromUser(user), "You added '" + nick + "' to 'not there'.");
 					Save();
 					return;
 				}
@@ -248,10 +248,10 @@ namespace Abbot.Plugins {
 					EventInfo e = eventInfos[int.Parse(m.Groups["event"].Value)];
 					string nick = m.Groups["nick"].Value;
 					if (nick.ToLower() == "me")
-						nick = Helper.GetNickFromUser(user);
+						nick = GetNickFromUser(user);
 					Remove(nick, e);
 					e.MaybeThere.Add(nick);
-					Bot.WriteNotice(network, Helper.GetNickFromUser(user), "You added '" + nick + "' to 'maybe there'.");
+					Bot.WriteNotice(network, GetNickFromUser(user), "You added '" + nick + "' to 'maybe there'.");
 					Save();
 					return;
 				}
@@ -261,9 +261,9 @@ namespace Abbot.Plugins {
 					Match m = r.Match(message);
 					string nick = m.Groups["nick"].Value;
 					if (nick.ToLower() == "me")
-						nick = Helper.GetNickFromUser(user);
+						nick = GetNickFromUser(user);
 					Remove(nick, eventInfos[int.Parse(m.Groups["event"].Value)]);
-					Bot.WriteNotice(network, Helper.GetNickFromUser(user), "You removed '" + nick + "'.");
+					Bot.WriteNotice(network, GetNickFromUser(user), "You removed '" + nick + "'.");
 					Save();
 					return;
 				}
@@ -272,7 +272,7 @@ namespace Abbot.Plugins {
 				if (r.IsMatch(message)) {
 					Match m = r.Match(message);
 					eventInfos.RemoveAt(int.Parse(m.Groups["event"].Value));
-					Bot.WriteNotice(network, Helper.GetNickFromUser(user), "The event has been removed.");
+					Bot.WriteNotice(network, GetNickFromUser(user), "The event has been removed.");
 					Save();
 					return;
 				}
@@ -284,7 +284,7 @@ namespace Abbot.Plugins {
 					e.There.Clear();
 					e.MaybeThere.Clear();
 					e.NotThere.Clear();
-					Bot.WriteNotice(network, Helper.GetNickFromUser(user), "The event has been cleared.");
+					Bot.WriteNotice(network, GetNickFromUser(user), "The event has been cleared.");
 					Save();
 					return;
 				}
@@ -296,7 +296,7 @@ namespace Abbot.Plugins {
 					DateTime d = new DateTime(int.Parse(m.Groups["year"].Value), int.Parse(m.Groups["month"].Value), int.Parse(m.Groups["day"].Value), int.Parse(m.Groups["hour"].Value), int.Parse(m.Groups["minute"].Value), 0);
 					e.Date = d;
 					e.Text = m.Groups["text"].Value;
-					Bot.WriteNotice(network, Helper.GetNickFromUser(user), "The event has been edited.");
+					Bot.WriteNotice(network, GetNickFromUser(user), "The event has been edited.");
 					Save();
 					return;
 				}

@@ -148,8 +148,8 @@ namespace Abbot.Plugins {
 					message = message.Substring(message.IndexOf(" ") + 1);
 					string name = message.Substring(0, message.IndexOf(" "));
 					message = message.Substring(message.IndexOf(" ") + 1);
-					tellInfos.Add(new TellInfo(network, Helper.GetNickFromUser(user), name, message));
-					Bot.WriteNotice(network, Helper.GetNickFromUser(user), "I'll tell '" + name + "' your message.");
+					tellInfos.Add(new TellInfo(network, GetNickFromUser(user), name, message));
+					Bot.WriteNotice(network, GetNickFromUser(user), "I'll tell '" + name + "' your message.");
 					Save();
 				}
 			} catch {
@@ -158,7 +158,7 @@ namespace Abbot.Plugins {
 		}
 
 		void Bot_UserJoins(string network, string channel, string user) {
-			Check(network, channel, Helper.GetNickFromUser(user));
+			Check(network, channel, GetNickFromUser(user));
 		}
 
 		#endregion

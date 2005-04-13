@@ -38,7 +38,6 @@ namespace Abbot.Plugins {
 			System.IO.StreamWriter writer = new System.IO.StreamWriter("Logs\\" + d.Year + "." + d.Month + "." + d.Day + ".log", true);
 			writer.WriteLine(((TimeSpan)(DateTime.Now - new DateTime(1970, 1, 1))).TotalMilliseconds.ToString() + " " + message);
 			writer.Close();
-			Console.WriteLine(message);
 		}
 		#endregion
 	}

@@ -168,13 +168,13 @@ namespace Abbot.Plugins {
 					message = message.Substring(10);
 					string t = message.Substring(0, message.IndexOf(" "));
 					message = message.Substring(3);
-					string u = Helper.GetNickFromUser(user);
+					string u = GetNickFromUser(user);
 					string p = message.Substring(0, message.IndexOf(" "));
 					string m = message.Substring(message.IndexOf(" ") + 1);
 					if (t == "in") {
 						int minutes = int.Parse(p);
 						remindInfos.Add(new RemindInfo(DateTime.Now.AddMinutes(minutes), network, channel, u, m));
-						Bot.WriteNotice(network, Helper.GetNickFromUser(user), "You will be reminded in " + minutes.ToString() + " minutes.");
+						Bot.WriteNotice(network, GetNickFromUser(user), "You will be reminded in " + minutes.ToString() + " minutes.");
 						Save();
 						return;
 					}
@@ -184,7 +184,7 @@ namespace Abbot.Plugins {
 						DateTime d = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, hour, minute, 0);
 						if (d < DateTime.Now) d.AddDays(1);
 						remindInfos.Add(new RemindInfo(d, network, channel, u, m));
-						Bot.WriteNotice(network, Helper.GetNickFromUser(user), "You will be reminded at " + Helper.Format(hour) + ":" + Helper.Format(minute) + ".");
+						Bot.WriteNotice(network, GetNickFromUser(user), "You will be reminded at " + Format(hour) + ":" + Format(minute) + ".");
 						Save();
 						return;
 					}
@@ -197,16 +197,16 @@ namespace Abbot.Plugins {
 				if (r.IsMatch(message)) {
 					Console.WriteLine("LIST REMINDERS");
 					int i = 0;
-					foreach (RemindInfo ri in GetReminders(Helper.GetNickFromUser(user)))
-						Bot.WriteNotice(network, Helper.GetNickFromUser(user), "[" + i.ToString() + "] - " + ri.Message + " - scheduled for " + ri.Date.ToLongDateString() + " " + ri.Date.ToShortTimeString() + ".");
+					foreach (RemindInfo ri in GetReminders(GetNickFromUser(user)))
+						Bot.WriteNotice(network, GetNickFromUser(user), "[" + i.ToString() + "] - " + ri.Message + " - scheduled for " + ri.Date.ToLongDateString() + " " + ri.Date.ToShortTimeString() + ".");
 					return;
 				}
 
 				r = new Regex(@"^remove reminder \[(?<reminder>\d*)\]$");
 				if (r.IsMatch(message)) {
 					Match m = r.Match(message);
-					remindInfos.Remove(GetReminders(Helper.GetNickFromUser(user))[int.Parse(m.Groups["reminder"].Value)]);
-					Bot.WriteNotice(network, Helper.GetNickFromUser(user), "The reminder has been removed.");
+					remindInfos.Remove(GetReminders(GetNickFromUser(user))[int.Parse(m.Groups["reminder"].Value)]);
+					Bot.WriteNotice(network, GetNickFromUser(user), "The reminder has been removed.");
 					Save();
 					return;
 				}

@@ -47,7 +47,7 @@ namespace Abbot.Plugins {
 			foreach (String s in ops) {
 				System.Text.RegularExpressions.Regex r = new System.Text.RegularExpressions.Regex(s, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 				if (r.IsMatch(user))
-					Bot.Write(network, "MODE " + channel + " +o " + Helper.GetNickFromUser(user));
+					Bot.Write(network, "MODE " + channel + " +o " + GetNickFromUser(user));
 			}
 		}
 

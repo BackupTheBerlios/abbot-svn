@@ -31,15 +31,17 @@ namespace Abbot {
 		StreamReader reader;
 		StreamWriter writer;
 		TcpClient client;
-		System.Threading.Thread thread;
+		System.Threading.Thread readThread, connectThread;
 
 		internal event GenericMessageEventHandler GenericMessage;
-		internal event ConnectEventHandler Connect;
-		internal event JoinEventHandler Join;
-		internal event DisconnectEventHandler Disconnect;
+		internal event ConnectEventHandler OnConnect;
+		internal event JoinEventHandler OnJoin;
+		internal event DisconnectEventHandler OnDisconnect;
+
 
 		#region " Constructor "
-		public Server(string network, string name, string address, int port) {
+		public Server(Abbot bot, string network, string name, string address, int port) {
+			this.bot = bot;
 			this.network = network;
 			this.name = name;
 			this.address = address;
@@ -47,44 +49,82 @@ namespace Abbot {
 		}
 		#endregion
 
+
 		#region " Connect/Disconnect "
-		internal void ConnectServer(Abbot bot) {
+		internal void Connect() {
 			client = new TcpClient(Address, Port);
 			reader = new StreamReader(client.GetStream(), System.Text.Encoding.GetEncoding(1252));
 			writer = new StreamWriter(client.GetStream(), System.Text.Encoding.GetEncoding(1252));
 
-			isConnected = true;
-			connectedSince = DateTime.Now;
+			Write("USER Abbot 0 * :Abbot Irc Bot <http://abbot.berlios.de>");
+			
+			if (OnConnect != null)
+				OnConnect(Network);
 
-			Write("USER Abbot 0 * :Abbot Irc Bot (c)Hannes Sachsenhofer");
-			Write("NICK " + bot.Nick);
+			GetNick();
 
-			if (Connect != null)
-				Connect(Network);
+			JoinChannels();
 
-			foreach (Channel c in Channels) {
-				Write("JOIN " + c.Name + " " + c.Password);
-				if (Join != null)
-					Join(Network, c.Name);
+			readThread = new System.Threading.Thread(new System.Threading.ThreadStart(Read));
+			readThread.Start();
+			connectThread = new System.Threading.Thread(new System.Threading.ThreadStart(Reconnect));
+			connectThread.Start();
+		}
+
+
+		private void GetNick() {
+			Write("NICK " + bot.Nick); //try the given bot nickname first
+
+			string s = Abbot.GetReturnCode(ReadLine());
+			while (s != "001" && s != "433") //skip some messages from the server that are not about the nickname
+				s = Abbot.GetReturnCode(ReadLine());
+
+			if (s == "001") { //bot nickname is ok
+				nick = bot.Nick;
+				return;
 			}
 
-			thread = new System.Threading.Thread(new System.Threading.ThreadStart(Read));
-			thread.Start();
+			int i = 0;
+			while (s == "433") { //create new names until one gets accepted
+				Write("NICK " + bot.Nick + i);
+				nick = bot.Nick + i;
+				i++;
+				s = Abbot.GetReturnCode(ReadLine());
+			}
 		}
 
-		internal void DisconnectServer() {
-			thread.Abort();
 
-			if (Disconnect != null)
-				Disconnect(Network);
+		private void JoinChannels() {
+			foreach (Channel c in Channels) {
+				Write("JOIN " + c.Name + " " + c.Password);
+				if (OnJoin != null)
+					OnJoin(Network, c.Name);
+			}
+		}
 
-			writer.Close();
-			reader.Close();
-			client.Close();
 
-			isConnected = false;
+		internal void Disconnect() {
+			if (OnDisconnect != null)
+				OnDisconnect(Network);
+
+			try {
+				connectThread.Abort();
+				readThread.Abort();
+
+				writer.Close();
+				reader.Close();
+				client.Close();
+			} catch { }
+		}
+
+
+		private void Reconnect() {
+			System.Threading.Thread.Sleep(60000);
+			if (!IsConnected)
+				Connect();
 		}
 		#endregion
+
 
 		#region " Read/Write "
 		internal void Write(string command) {
@@ -92,6 +132,7 @@ namespace Abbot {
 			writer.WriteLine(command);
 			writer.Flush();
 		}
+
 
 		void Read() {
 			while (true) {
@@ -101,22 +142,40 @@ namespace Abbot {
 				System.Threading.Thread.Sleep(2000);
 			}
 		}
+
+
+		private string ReadLine() {
+			string s = reader.ReadLine();
+			if (GenericMessage != null)
+				GenericMessage(network, s);
+			return s;
+		}
 		#endregion
 
+
 		#region " Properties "
-		bool isConnected;
 		public bool IsConnected {
 			get {
-				return isConnected;
+				return client.Connected;
 			}
 		}
 
-		DateTime connectedSince;
-		public DateTime ConnectedSince {
+
+		string nick;
+		public string Nick {
 			get {
-				return connectedSince;
+				return nick;
 			}
 		}
+
+
+		Abbot bot;
+		public Abbot Bot {
+			get {
+				return bot;
+			}
+		}
+
 
 		List<Channel> channels = new List<Channel>();
 		public List<Channel> Channels {
@@ -125,12 +184,14 @@ namespace Abbot {
 			}
 		}
 
+
 		string name;
 		public string Name {
 			get {
 				return name;
 			}
 		}
+
 
 		int port;
 		public int Port {
@@ -139,12 +200,14 @@ namespace Abbot {
 			}
 		}
 
+
 		string network;
 		public string Network {
 			get {
 				return network;
 			}
 		}
+
 
 		string address;
 		public string Address {
@@ -153,5 +216,7 @@ namespace Abbot {
 			}
 		}
 		#endregion
+
+
 	}
 }

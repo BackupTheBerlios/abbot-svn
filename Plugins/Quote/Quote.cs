@@ -121,7 +121,7 @@ namespace Abbot.Plugins {
 			if (r.IsMatch(message)) {
 				string s = GetQuote();
 				if (s.Length <= 0) {
-					Bot.WriteNotice(network, Helper.GetNickFromUser(user), "I'm sorry, I don't know any quotes.");
+					Bot.WriteNotice(network, GetNickFromUser(user), "I'm sorry, I don't know any quotes.");
 					return;
 				}
 				Bot.Write(network, channel, s);
@@ -133,7 +133,7 @@ namespace Abbot.Plugins {
 				Match m = r.Match(message);
 				string s = GetQuote(m.Groups["type"].Value);
 				if (s.Length <= 0) {
-					Bot.WriteNotice(network, Helper.GetNickFromUser(user), "I'm sorry, I don't know any '" + m.Groups["type"].Value + "'quotes.");
+					Bot.WriteNotice(network, GetNickFromUser(user), "I'm sorry, I don't know any '" + m.Groups["type"].Value + "'quotes.");
 					return;
 				}
 				Bot.Write(network, channel, s);
@@ -144,7 +144,7 @@ namespace Abbot.Plugins {
 			if (r.IsMatch(message)) {
 				Match m = r.Match(message);
 				quotes.Add(new QuoteInfo(m.Groups["type"].Value, m.Groups["text"].Value));
-				Bot.WriteNotice(network, Helper.GetNickFromUser(user), "Your quote has been added.");
+				Bot.WriteNotice(network, GetNickFromUser(user), "Your quote has been added.");
 				Save();
 				return;
 			}

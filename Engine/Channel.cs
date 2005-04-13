@@ -20,10 +20,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 namespace Abbot {
 	public class Channel {
 		
+
 		public Channel(string name,string password) {
 			this.name = name;
 			this.password = password;
 		}
+
 
 		#region " Properties "
 		string name;
@@ -40,5 +42,7 @@ namespace Abbot {
 			}
 		}
 		#endregion
+
+
 	}
 }
