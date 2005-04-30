@@ -30,12 +30,13 @@ namespace Abbot.Plugins {
 
 		#region " Constructor/Destructor "
 		List<SeenInfo> seenInfos;
-		public Seen(Abbot bot):base(bot) {
-			Bot.Message += new MessageEventHandler(bot_Message);
-			Bot.UserJoins += new UserJoinsEventHandler(Bot_UserJoins);
-			Bot.UserLeaves += new UserLeavesEventHandler(Bot_UserLeaves);
-			Bot.UserQuits += new UserQuitsEventHandler(Bot_UserQuits);
-			Bot.UserChangesNick += new UserChangesNickEventHandler(Bot_UserChangesNick);
+		public Seen(Bot bot)
+			: base(bot) {
+			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnChannelMessage);
+			Bot.OnJoin += new JoinEventHandler(Bot_OnJoin);
+			Bot.OnPart += new PartEventHandler(Bot_OnPart);
+			Bot.OnQuit += new QuitEventHandler(Bot_OnQuit);
+			Bot.OnNickChange += new NickChangeEventHandler(Bot_OnNickChange);
 
 			Load();
 		}
@@ -56,9 +57,7 @@ namespace Abbot.Plugins {
 			return null;
 		}
 
-		void NewSeen(string network, string user, string text) {
-			string nick = GetNickFromUser(user);
-			string ident = GetIdentFromUser(user);
+		void NewSeen(string network, string nick, string ident, string text) {
 			SeenInfo i = FindIdent(network, ident);
 			if (i == null) {
 				i = new SeenInfo(network, ident, text);
@@ -98,7 +97,8 @@ namespace Abbot.Plugins {
 		[Serializable]
 		public class SeenInfo {
 
-			public SeenInfo() { }
+			public SeenInfo() {
+			}
 
 			public SeenInfo(string network, string ident, string text) {
 				this.date = DateTime.Now;
@@ -161,42 +161,41 @@ namespace Abbot.Plugins {
 		#endregion
 
 		#region " Event Handles "
-		void bot_Message(string network, string channel, string user, string message) {
-			NewSeen(network, user, "on " + channel + ", saying '" + message + "'");
+		void Bot_OnChannelMessage(Network network, Irc.IrcEventArgs e) {
+			NewSeen(network.Name, e.Data.Nick, e.Data.Ident, "on " + e.Data.Channel + ", saying '" + e.Data.Message + "'");
 			try {
-				if (message.StartsWith("seen ")) {
-					string name = message.Substring(message.IndexOf(" ") + 1);
-					SeenInfo i = FindName(network, name);
+				if (e.Data.Message.StartsWith("seen ")) {
+					string name = e.Data.Message.Substring(e.Data.Message.IndexOf(" ") + 1);
+					SeenInfo i = FindName(network.Name, name);
 					if (i == null) {
-						Bot.WriteNotice(network, GetNickFromUser(user), "I never saw a '" + name + "' before.");
+						network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "I never saw a '" + name + "' before.");
 					}
-					else if (i.Ident == GetIdentFromUser(user)) {
-						Bot.WriteNotice(network, GetNickFromUser(user), "Looking for yourself?");
+					else if (i.Ident == e.Data.Ident) {
+						network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "Looking for yourself?");
 					}
 					else {
 						TimeSpan t = (TimeSpan)(DateTime.Now - i.Date);
-						Bot.WriteNotice(network, GetNickFromUser(user), "I saw " + name + " " + Convert.ToInt16(t.TotalHours).ToString() + " hours, " + t.Minutes.ToString() + " minutes and " + t.Seconds.ToString() + " seconds ago, " + i.Text + ".");
+						network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "I saw " + name + " " + Convert.ToInt16(t.TotalHours).ToString() + " hours, " + t.Minutes.ToString() + " minutes and " + t.Seconds.ToString() + " seconds ago, " + i.Text + ".");
 					}
 				}
 			} catch {
-				BadSyntax(network, user);
 			}
 		}
 
-		void Bot_UserJoins(string network, string channel, string user) {
-			NewSeen(network, user, "joining " + channel);
+		void Bot_OnJoin(Network network, Irc.JoinEventArgs e) {
+			NewSeen(network.Name, e.Data.Nick, e.Data.Ident, "joining " + e.Data.Channel);
 		}
 
-		void Bot_UserLeaves(string network, string channel, string user, string message) {
-			NewSeen(network, user, "leaving " + channel);
+		void Bot_OnPart(Network network, Irc.PartEventArgs e) {
+			NewSeen(network.Name, e.Data.Nick, e.Data.Ident, "leaving " + e.Data.Channel);
 		}
 
-		void Bot_UserQuits(string network, string user, string message) {
-			NewSeen(network, user, "quitting IRC (" + message + ")");
+		void Bot_OnQuit(Network network, Irc.QuitEventArgs e) {
+			NewSeen(network.Name, e.Data.Nick, e.Data.Ident, "quitting IRC (" + e.Data.Message + ")");
 		}
 
-		void Bot_UserChangesNick(string network, string user, string newNick) {
-			NewSeen(network, user, "changing his nick from " + GetNickFromUser(user) + " to " + newNick);
+		void Bot_OnNickChange(Network network, Irc.NickChangeEventArgs e) {
+			NewSeen(network.Name, e.Data.Nick, e.Data.Ident, "changing his nick from " + e.OldNickname + " to " + e.NewNickname);
 		}
 		#endregion
 

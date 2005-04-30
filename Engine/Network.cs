@@ -59,6 +59,7 @@ namespace Abbot {
 
 		public new void Disconnect() {
 			listenThread.Abort();
+			RfcQuit("Abbot IRC bot [http://abbot.berlios.de]");
 			if (this.IsConnected)
 				base.Disconnect();
 		}

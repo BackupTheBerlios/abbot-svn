@@ -31,9 +31,8 @@ namespace Abbot.Plugins {
 		#region " Constructor/Destructor "
 		List<QuoteInfo> quotes;
 		Random r = new Random();
-		public Quote(Abbot bot):base(bot) {
-			Bot.Message += new MessageEventHandler(Bot_Message);
-			Bot.Disconnect += new DisconnectEventHandler(Bot_Disconnect);
+		public Quote(Bot bot):base(bot) {
+			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnChannelMessage);
 			Load();
 		}
 		#endregion
@@ -110,41 +109,37 @@ namespace Abbot.Plugins {
 		#endregion
 
 		#region " Event handles "
-		void Bot_Disconnect(string network) {
-			Bot.Write(network, "QUIT :" + GetQuote());
-		}
-
-		void Bot_Message(string network, string channel, string user, string message) {
+		void Bot_OnChannelMessage(Network network,Irc.IrcEventArgs e) {
 			Regex r;
 
 			r = new Regex(@"^quote$");
-			if (r.IsMatch(message)) {
+			if (r.IsMatch(e.Data.Message)) {
 				string s = GetQuote();
 				if (s.Length <= 0) {
-					Bot.WriteNotice(network, GetNickFromUser(user), "I'm sorry, I don't know any quotes.");
+					network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "I'm sorry, I don't know any quotes.");
 					return;
 				}
-				Bot.Write(network, channel, s);
+				network.SendMessage(Abbot.Irc.SendType.Message, e.Data.Channel, s);
 				return;
 			}
 
 			r = new Regex(@"^quote (?<type>\w*)$");
-			if (r.IsMatch(message)) {
-				Match m = r.Match(message);
+			if (r.IsMatch(e.Data.Message)) {
+				Match m = r.Match(e.Data.Message);
 				string s = GetQuote(m.Groups["type"].Value);
 				if (s.Length <= 0) {
-					Bot.WriteNotice(network, GetNickFromUser(user), "I'm sorry, I don't know any '" + m.Groups["type"].Value + "'quotes.");
+					network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "I'm sorry, I don't know any quotes.");
 					return;
 				}
-				Bot.Write(network, channel, s);
+				network.SendMessage(Abbot.Irc.SendType.Message, e.Data.Channel, s);
 				return;
 			}
 
 			r = new Regex(@"^add (?<type>\w*?) quote (?<text>.*)$");
-			if (r.IsMatch(message)) {
-				Match m = r.Match(message);
+			if (r.IsMatch(e.Data.Message)) {
+				Match m = r.Match(e.Data.Message);
 				quotes.Add(new QuoteInfo(m.Groups["type"].Value, m.Groups["text"].Value));
-				Bot.WriteNotice(network, GetNickFromUser(user), "Your quote has been added.");
+				network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "Your quote has been added.");
 				Save();
 				return;
 			}

@@ -27,16 +27,17 @@ namespace Abbot.Plugins {
 	public class Log : Plugin {
 
 		#region " Constructor/Destructor "
-		public Log(Abbot bot):base(bot) {
-			Bot.GenericMessage += new GenericMessageEventHandler(Bot_GenericMessage);
+		public Log(Bot bot)
+			: base(bot) {
+			Bot.OnRawMessage += new IrcEventHandler(Bot_OnRawMessage);
 		}
 		#endregion
 
 		#region " Event handles "
-		void Bot_GenericMessage(string network, string message) {
+		void Bot_OnRawMessage(Network network, Irc.IrcEventArgs e) {
 			DateTime d = DateTime.Now;
 			System.IO.StreamWriter writer = new System.IO.StreamWriter("Logs\\" + d.Year + "." + d.Month + "." + d.Day + ".log", true);
-			writer.WriteLine(((TimeSpan)(DateTime.Now - new DateTime(1970, 1, 1))).TotalMilliseconds.ToString() + " " + message);
+			writer.WriteLine(((TimeSpan)(DateTime.Now - new DateTime(1970, 1, 1))).TotalMilliseconds.ToString() + " " + e.Data.Message);
 			writer.Close();
 		}
 		#endregion

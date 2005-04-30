@@ -30,10 +30,10 @@ namespace Abbot.Plugins {
 
 		#region " Constructor/Destructor "
 		List<TellInfo> tellInfos;
-		public Tell(Abbot bot):base(bot) {
-			Bot.Message += new MessageEventHandler(bot_Message);
-			Bot.UserJoins += new UserJoinsEventHandler(Bot_UserJoins);
-
+		public Tell(Bot bot)
+			: base(bot) {
+			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnChannelMessage);
+			Bot.OnJoin += new JoinEventHandler(Bot_OnJoin);
 			Load();
 		}
 		#endregion
@@ -44,7 +44,9 @@ namespace Abbot.Plugins {
 			foreach (TellInfo t in tellInfos)
 				if (t.Target == name && t.Network == network) {
 					tmp.Add(t);
-					Bot.Write(network, channel, name + ", on " + t.Date.ToLongDateString() + " " + t.Date.ToLongTimeString() + " " + t.Name + " wanted to tell you '" + t.Text + "'.");
+					Network n = Bot.GetNetworkByName(network);
+					if (n != null)
+						n.SendMessage(Abbot.Irc.SendType.Message, channel, name + ", on " + t.Date.ToLongDateString() + " " + t.Date.ToLongTimeString() + " " + t.Name + " wanted to tell you '" + t.Text + "'.");
 				}
 
 			if (tmp.Count > 0) {
@@ -78,7 +80,8 @@ namespace Abbot.Plugins {
 		[Serializable]
 		public class TellInfo {
 
-			public TellInfo() { }
+			public TellInfo() {
+			}
 
 			public TellInfo(string network, string name, string target, string text) {
 				this.date = DateTime.Now;
@@ -142,23 +145,23 @@ namespace Abbot.Plugins {
 		#endregion
 
 		#region " Event Handles "
-		void bot_Message(string network, string channel, string user, string message) {
+		void Bot_OnChannelMessage(Network network, Irc.IrcEventArgs e) {
 			try {
+				string message = e.Data.Message.ToLower();
 				if (message.StartsWith("tell ")) {
 					message = message.Substring(message.IndexOf(" ") + 1);
 					string name = message.Substring(0, message.IndexOf(" "));
 					message = message.Substring(message.IndexOf(" ") + 1);
-					tellInfos.Add(new TellInfo(network, GetNickFromUser(user), name, message));
-					Bot.WriteNotice(network, GetNickFromUser(user), "I'll tell '" + name + "' your message.");
+					tellInfos.Add(new TellInfo(network.Name, e.Data.Nick, name, message));
+					network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "I'll tell '" + name + "' your message.");
 					Save();
 				}
 			} catch {
-				BadSyntax(network, user);
 			}
 		}
 
-		void Bot_UserJoins(string network, string channel, string user) {
-			Check(network, channel, GetNickFromUser(user));
+		void Bot_OnJoin(Network network, Irc.JoinEventArgs e) {
+			Check(network.Name, e.Data.Channel, e.Data.Nick);
 		}
 
 		#endregion
