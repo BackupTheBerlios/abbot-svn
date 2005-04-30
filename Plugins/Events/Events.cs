@@ -31,9 +31,9 @@ namespace Abbot.Plugins {
 
 		#region " Constructor/Destructor "
 		List<EventInfo> eventInfos;
-		public Events(Abbot bot):base(bot) {
-			Bot.UserJoins += new UserJoinsEventHandler(Bot_UserJoins);
-			Bot.Message += new MessageEventHandler(Bot_Message);
+		public Events(Bot bot):base(bot) {
+			Bot.OnJoin += new JoinEventHandler(Bot_UserJoins);
+			Bot.OnChannelMessage += new IrcEventHandler(Bot_Message);
 
 			Load();
 		}
@@ -167,37 +167,37 @@ namespace Abbot.Plugins {
 		#endregion
 
 		#region " Event Handles "
-		void Bot_UserJoins(string network, string channel, string user) {
+		void Bot_UserJoins(Network network,Irc.JoinEventArgs e) {
 			DeleteOldEvents();
-			Bot.WriteNotice(network, GetNickFromUser(user), GetNickFromUser(user) + ", there are " + eventInfos.Count + " upcoming events.");
+			network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "There are " + eventInfos.Count + " upcoming events.");
 		}
 
-		void Bot_Message(string network, string channel, string user, string message) {
+		void Bot_Message(Network network, Irc.IrcEventArgs e) {
 			Regex r;
 
 			r = new Regex(@"^list events$");
-			if (r.IsMatch(message)) {
+			if (r.IsMatch(e.Data.Message)) {
 				DeleteOldEvents();
 				int i = 0;
-				foreach (EventInfo e in eventInfos) {
+				foreach (EventInfo eventinfo in eventInfos) {
 					string there = "";
-					foreach (string s in e.There)
+					foreach (string s in eventinfo.There)
 						there += s + ", ";
 					if (there.Length > 0)
 						there = there.Substring(0, there.Length - 2);
 					string maybeThere = "";
-					foreach (string s in e.MaybeThere)
+					foreach (string s in eventinfo.MaybeThere)
 						maybeThere += s + ", ";
 					if (maybeThere.Length > 0)
 						maybeThere = maybeThere.Substring(0, maybeThere.Length - 2);
 					string notThere = "";
-					foreach (string s in e.NotThere)
+					foreach (string s in eventinfo.NotThere)
 						notThere += s + ", ";
 					if (notThere.Length > 0)
 						notThere = notThere.Substring(0, notThere.Length - 2);
 
-					Bot.WriteNotice(network, GetNickFromUser(user), "[" + i.ToString() + "] - " + e.Text + " - scheduled for " + e.Date.ToLongDateString() + " " + e.Date.ToShortTimeString());
-					Bot.WriteNotice(network, GetNickFromUser(user), "there: " + there + " - maybe there: " + maybeThere + " - not there: " + notThere);
+					network.SendMessage(Abbot.Irc.SendType.Notice,e.Data.Nick, "[" + i.ToString() + "] - " + eventinfo.Text + " - scheduled for " + eventinfo.Date.ToLongDateString() + " " + eventinfo.Date.ToShortTimeString());
+					network.SendMessage(Abbot.Irc.SendType.Notice,e.Data.Nick, "there: " + there + " - maybe there: " + maybeThere + " - not there: " + notThere);
 					i++;
 				}
 				return;
@@ -205,105 +205,103 @@ namespace Abbot.Plugins {
 
 			try {
 				r = new Regex(@"^add event (?<day>\d*)\.(?<month>\d*)\.(?<year>\d*) (?<hour>\d*):(?<minute>\d*) (?<text>.*)$");
-				if (r.IsMatch(message)) {
-					Match m = r.Match(message);
+				if (r.IsMatch(e.Data.Message)) {
+					Match m = r.Match(e.Data.Message);
 					DateTime d = new DateTime(int.Parse(m.Groups["year"].Value), int.Parse(m.Groups["month"].Value), int.Parse(m.Groups["day"].Value), int.Parse(m.Groups["hour"].Value), int.Parse(m.Groups["minute"].Value), 0);
 					eventInfos.Add(new EventInfo(d, m.Groups["text"].Value));
-					Bot.WriteNotice(network, GetNickFromUser(user), "The event has been added.");
+					network.SendMessage(Abbot.Irc.SendType.Notice,e.Data.Nick, "The event has been added.");
 					Save();
 					return;
 				}
 
 				r = new Regex(@"^add (?<nick>\w*) to \[(?<event>\d*)\]$");
-				if (r.IsMatch(message)) {
-					Match m = r.Match(message);
-					EventInfo e = eventInfos[int.Parse(m.Groups["event"].Value)];
+				if (r.IsMatch(e.Data.Message)) {
+					Match m = r.Match(e.Data.Message);
+					EventInfo eventinfo = eventInfos[int.Parse(m.Groups["event"].Value)];
 					string nick = m.Groups["nick"].Value;
 					if (nick.ToLower() == "me")
-						nick = GetNickFromUser(user);
-					Remove(nick, e);
-					e.There.Add(nick);
-					Bot.WriteNotice( network, GetNickFromUser( user ), "You added '" + nick + "' as 'there' to event [" + int.Parse( m.Groups["event"].Value ) + "]." );
+						nick = e.Data.Nick;
+					Remove(nick, eventinfo);
+					eventinfo.There.Add(nick);
+					network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "You added '" + nick + "' as 'there' to event [" + int.Parse(m.Groups["event"].Value) + "].");
 					Save();
 					return;
 				}
 
 				r = new Regex(@"^add (?<nick>\w*) not to \[(?<event>\d*)\]$");
-				if (r.IsMatch(message)) {
-					Match m = r.Match(message);
-					EventInfo e = eventInfos[int.Parse(m.Groups["event"].Value)];
+				if (r.IsMatch(e.Data.Message)) {
+					Match m = r.Match(e.Data.Message);
+					EventInfo eventinfo = eventInfos[int.Parse(m.Groups["event"].Value)];
 					string nick = m.Groups["nick"].Value;
 					if (nick.ToLower() == "me")
-						nick = GetNickFromUser(user);
-					Remove(nick, e);
-					e.NotThere.Add(nick);
-					Bot.WriteNotice( network, GetNickFromUser( user ), "You added '" + nick + "' as 'not there' to event [" + int.Parse( m.Groups["event"].Value ) + "]." );
+						nick = e.Data.Nick;
+					Remove(nick, eventinfo);
+					eventinfo.NotThere.Add(nick);
+					network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "You added '" + nick + "' as 'not there' to event [" + int.Parse(m.Groups["event"].Value) + "].");
 					Save();
 					return;
 				}
 
 				r = new Regex(@"^add (?<nick>\w*) maybe to \[(?<event>\d*)\]$");
-				if (r.IsMatch(message)) {
-					Match m = r.Match(message);
-					EventInfo e = eventInfos[int.Parse(m.Groups["event"].Value)];
+				if (r.IsMatch(e.Data.Message)) {
+					Match m = r.Match(e.Data.Message);
+					EventInfo eventinfo = eventInfos[int.Parse(m.Groups["event"].Value)];
 					string nick = m.Groups["nick"].Value;
 					if (nick.ToLower() == "me")
-						nick = GetNickFromUser(user);
-					Remove(nick, e);
-					e.MaybeThere.Add(nick);
-					Bot.WriteNotice(network, GetNickFromUser(user), "You added '" + nick + "' as 'maybe there' to event [" + int.Parse(m.Groups["event"].Value) + "].");
+						nick = e.Data.Nick;
+					Remove(nick, eventinfo);
+					eventinfo.MaybeThere.Add(nick);
+					network.SendMessage(Abbot.Irc.SendType.Notice,e.Data.Nick, "You added '" + nick + "' as 'maybe there' to event [" + int.Parse(m.Groups["event"].Value) + "].");
 					Save();
 					return;
 				}
 
 				r = new Regex(@"^remove (?<nick>\w*) from \[(?<event>\d*)\]$");
-				if (r.IsMatch(message)) {
-					Match m = r.Match(message);
+				if (r.IsMatch(e.Data.Message)) {
+					Match m = r.Match(e.Data.Message);
 					string nick = m.Groups["nick"].Value;
 					if (nick.ToLower() == "me")
-						nick = GetNickFromUser(user);
+						nick = e.Data.Nick;
 					Remove(nick, eventInfos[int.Parse(m.Groups["event"].Value)]);
-					Bot.WriteNotice(network, GetNickFromUser(user), "You removed '" + nick + "'.");
+					network.SendMessage(Abbot.Irc.SendType.Notice,e.Data.Nick, "You removed '" + nick + "'.");
 					Save();
 					return;
 				}
 
 				r = new Regex(@"^remove event \[(?<event>\d*)\]$");
-				if (r.IsMatch(message)) {
-					Match m = r.Match(message);
+				if (r.IsMatch(e.Data.Message)) {
+					Match m = r.Match(e.Data.Message);
 					eventInfos.RemoveAt(int.Parse(m.Groups["event"].Value));
-					Bot.WriteNotice(network, GetNickFromUser(user), "The event has been removed.");
+					network.SendMessage(Abbot.Irc.SendType.Notice,e.Data.Nick, "The event has been removed.");
 					Save();
 					return;
 				}
 
 				r = new Regex(@"^clear event \[(?<event>\d*)\]$");
-				if (r.IsMatch(message)) {
-					Match m = r.Match(message);
-					EventInfo e = eventInfos[int.Parse(m.Groups["event"].Value)];
-					e.There.Clear();
-					e.MaybeThere.Clear();
-					e.NotThere.Clear();
-					Bot.WriteNotice(network, GetNickFromUser(user), "The event has been cleared.");
+				if (r.IsMatch(e.Data.Message)) {
+					Match m = r.Match(e.Data.Message);
+					EventInfo eventinfo = eventInfos[int.Parse(m.Groups["event"].Value)];
+					eventinfo.There.Clear();
+					eventinfo.MaybeThere.Clear();
+					eventinfo.NotThere.Clear();
+					network.SendMessage(Abbot.Irc.SendType.Notice,e.Data.Nick, "The event has been cleared.");
 					Save();
 					return;
 				}
 
 				r = new Regex(@"^edit event \[(?<event>\d*)\] (?<day>\d*)\.(?<month>\d*)\.(?<year>\d*) (?<hour>\d*):(?<minute>\d*) (?<text>.*)$");
-				if (r.IsMatch(message)) {
-					Match m = r.Match(message);
-					EventInfo e = eventInfos[int.Parse(m.Groups["event"].Value)];
+				if (r.IsMatch(e.Data.Message)) {
+					Match m = r.Match(e.Data.Message);
+					EventInfo eventinfo = eventInfos[int.Parse(m.Groups["event"].Value)];
 					DateTime d = new DateTime(int.Parse(m.Groups["year"].Value), int.Parse(m.Groups["month"].Value), int.Parse(m.Groups["day"].Value), int.Parse(m.Groups["hour"].Value), int.Parse(m.Groups["minute"].Value), 0);
-					e.Date = d;
-					e.Text = m.Groups["text"].Value;
-					Bot.WriteNotice(network, GetNickFromUser(user), "The event has been edited.");
+					eventinfo.Date = d;
+					eventinfo.Text = m.Groups["text"].Value;
+					network.SendMessage(Abbot.Irc.SendType.Notice,e.Data.Nick, "The event has been edited.");
 					Save();
 					return;
 				}
 
-			} catch {
-				BadSyntax(network, user);
-			}
+			} catch {}
 
 		}
 		#endregion

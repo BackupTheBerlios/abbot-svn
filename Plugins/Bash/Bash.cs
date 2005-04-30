@@ -1,6 +1,6 @@
 ﻿/*
 Abbot: The petite IRC bot
-Copyright (C) 2005 The Abbot Project
+Copyright (C) 2005 Wolfgang Gottesheim, Hannes Sachsenhofer
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
