@@ -1,6 +1,6 @@
 ﻿/*
 Abbot: The petite IRC bot
-Copyright (C) 2005 Hannes Sachsenhofer
+Copyright (C) 2005 The Abbot Project
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,18 +20,34 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #region Using directives
 
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading;
+using Abbot.Irc;
 
 #endregion
 
 namespace Abbot {
 	class Program {
 
+
+		static Bot bot;
 		static void Main(string[] args) {
-			Abbot bot = new Abbot();
+			bot = new Bot();
+			bot.OnRawMessage+=new IrcEventHandler(bot_OnRawMessage);
 			bot.ConnectAll();
+			new Thread(new ThreadStart(ReadCommand)).Start();		
 		}
+
+
+		static void ReadCommand() {
+			while (true)
+				bot.Networks[0].SendMessage(SendType.Message,bot.Networks[0].Channels[0],Console.ReadLine());
+		}
+
+
+		static void bot_OnRawMessage(Network sender, IrcEventArgs e) {
+			Console.WriteLine(e.Data.Nick + ": " + e.Data.Message);
+		}
+
 
 	}
 }

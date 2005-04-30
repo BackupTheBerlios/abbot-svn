@@ -1,4 +1,4 @@
-﻿/*
+/*
 Abbot: The petite IRC bot
 Copyright (C) 2005 The Abbot Project
 
@@ -17,14 +17,23 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#region Using directives
-using System.Reflection;
-using System.Runtime.CompilerServices;
-#endregion
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-[assembly: AssemblyTitle("Abbot GUI for Windows")]
-[assembly: AssemblyProduct("Abbot GUI for Windows")]
-[assembly: AssemblyDescription("A simple Windows GUI for The Abbot IRC Bot.")]
-[assembly: AssemblyCompany("The Abbot project [http://Abbot.berlios.de]")]
-[assembly: AssemblyCopyright("(c) 2005 The Abbot Project")]
-[assembly: AssemblyVersion("1.1.0.*")]
+namespace Abbot {
+	class InvalidOperationWhileConnectedException : Exception {
+		public InvalidOperationWhileConnectedException(string message) : base(message) { }
+		public InvalidOperationWhileConnectedException() : base() { }
+	}
+
+	class InvalidConfigurationException : Exception {
+		public InvalidConfigurationException(string message) : base(message) { }
+		public InvalidConfigurationException() : base() { }
+	}
+
+	class NetworkNotFoundException : Exception {
+		public NetworkNotFoundException(string message) : base(message) { }
+		public NetworkNotFoundException() : base() { }
+	}
+}

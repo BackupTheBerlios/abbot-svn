@@ -1,6 +1,6 @@
 ﻿/*
 Abbot: The petite IRC bot
-Copyright (C) 2005 Hannes Sachsenhofer
+Copyright (C) 2005 The Abbot Project
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -30,17 +30,18 @@ namespace Abbot.Plugins {
 	public class Bash : Plugin {
 
 		#region " Constructor/Destructor "
-		public Bash(Abbot bot):base(bot) {
-			Bot.Message += new MessageEventHandler(Bot_Message);
+		public Bash(Bot bot)
+			: base(bot) {
+			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnChannelMessage);
 		}
 		#endregion
 
 		#region " Bash "
-		string network;
-		string channel;
+		Network n;
+		Irc.IrcEventArgs e;
 		void GetQuote() {
-			string n = network;
-			string c = channel;
+			Network n = this.n;
+			Irc.IrcEventArgs e = this.e;
 			HttpWebRequest httpReq = (HttpWebRequest)WebRequest.Create("http://bash.org/?random");
 			httpReq.Method = "GET";
 
@@ -58,18 +59,18 @@ namespace Abbot.Plugins {
 			cutstring = cutstring.Replace("\r", "");
 			Match m = Regex.Match(responseString, "<a href=\".([0-9]{2,10})\" title");
 
-			Bot.Write(n, c, "Bash Quote #" + m.Groups[1].Value);
+			n.SendMessage(Irc.SendType.Message, e.Data.Channel, "Bash Quote #" + m.Groups[1].Value);
 			foreach (string s in cutstring.Split('\n'))
 				if (s.Length > 0)
-					Bot.Write(n, c, s);
+					n.SendMessage(Irc.SendType.Message, e.Data.Channel, s);
 		}
 		#endregion
 
 		#region " Event handles "
-		void Bot_Message(string network, string channel, string user, string message) {
-			if (message.ToLower() == "bash") {
-				this.network = network;
-				this.channel = channel;
+		void Bot_OnChannelMessage(Network network, Irc.IrcEventArgs e) {
+			if (e.Data.Message.ToLower() == "bash") {
+				this.n = network;
+				this.e = e;
 				new System.Threading.Thread(new ThreadStart(GetQuote)).Start();
 			}
 		}

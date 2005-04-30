@@ -22,9 +22,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 #endregion
 
-[assembly: AssemblyTitle("Abbot GUI for Windows")]
-[assembly: AssemblyProduct("Abbot GUI for Windows")]
-[assembly: AssemblyDescription("A simple Windows GUI for The Abbot IRC Bot.")]
+[assembly: AssemblyTitle("Abbot Windows Service")]
+[assembly: AssemblyProduct("Abbot Windows Service")]
+[assembly: AssemblyDescription("An application that allows the Abbot IRC Bot to run as a windows service.")]
 [assembly: AssemblyCompany("The Abbot project [http://Abbot.berlios.de]")]
 [assembly: AssemblyCopyright("(c) 2005 The Abbot Project")]
-[assembly: AssemblyVersion("1.1.0.*")]
+[assembly: AssemblyVersion("1.0.0.*")]

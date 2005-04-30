@@ -1,6 +1,6 @@
 ﻿/*
 Abbot: The petite IRC bot
-Copyright (C) 2005 Hannes Sachsenhofer
+Copyright (C) 2005 The Abbot project
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,45 +28,23 @@ namespace Abbot.Plugins {
 
 		#region " Constructor/Destructor "
 		List<string> ops = new List<string>();
-		List<string> deops = new List<string>();
-		public AutoOp(Abbot bot):base(bot) {
-			Bot.UserJoins += new UserJoinsEventHandler(Bot_UserJoins);
-			Bot.UserOpped += new UserOppedEventHandler(Bot_UserOpped);
+		public AutoOp(Bot bot)
+			: base(bot) {
+			Bot.OnJoin += new JoinEventHandler(Bot_UserJoins);
 
 			XmlElement xml = Bot.Configuration["Plugins"]["AutoOp"];
-			foreach (XmlElement e in xml.ChildNodes)
-				if (e.Name.ToLower() == "op")
-					ops.Add(e.InnerText);
-				else if (e.Name.ToLower() == "deop")
-					deops.Add(e.InnerText);
-		}
-		#endregion
-
-		#region " AutoOp "
-		void Op(string network, string channel, string user) {
-			foreach (String s in ops) {
-				System.Text.RegularExpressions.Regex r = new System.Text.RegularExpressions.Regex(s, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-				if (r.IsMatch(user))
-					Bot.Write(network, "MODE " + channel + " +o " + GetNickFromUser(user));
-			}
-		}
-
-		void DeOp(string network, string channel, string target) {
-			foreach (String s in deops) {
-				System.Text.RegularExpressions.Regex r = new System.Text.RegularExpressions.Regex(s, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-				if (r.IsMatch(target))
-					Bot.Write(network, "MODE " + channel + " -o " + target);
-			}
+			foreach (XmlElement e in xml.GetElementsByTagName("Op"))
+				ops.Add(e.InnerText);
 		}
 		#endregion
 
 		#region " Event handles "
-		void Bot_UserJoins(string network, string channel, string user) {
-			Op(network, channel, user);
-		}
-
-		void Bot_UserOpped(string network, string channel, string user, string target) {
-			DeOp(network, channel, target);
+		void Bot_UserJoins(Network network, Irc.JoinEventArgs e) {
+			foreach (String s in ops) {
+				System.Text.RegularExpressions.Regex r = new System.Text.RegularExpressions.Regex(s, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+				if (r.IsMatch(e.Data.From))
+					network.Op(e.Channel, e.Who);
+			}
 		}
 		#endregion
 	}

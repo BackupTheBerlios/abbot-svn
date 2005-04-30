@@ -1,6 +1,6 @@
 ﻿/*
 Abbot: The petite IRC bot
-Copyright (C) 2005 Hannes Sachsenhofer
+Copyright (C) 2005 The Abbot Project
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,7 +28,15 @@ namespace Abbot {
 
 		[STAThread]
 		static void Main() {
+			bot = new Bot();
 			Application.Run(new frmMain());	
+		}
+
+		static Bot bot;
+		public static Bot Bot {
+			get {
+				return bot;
+			}
 		}
 	}
 }

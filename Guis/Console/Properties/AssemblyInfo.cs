@@ -1,6 +1,6 @@
 ﻿/*
 Abbot: The petite IRC bot
-Copyright (C) 2005 Hannes Sachsenhofer
+Copyright (C) 2005 The Abbot Project
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,9 +22,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 #endregion
 
-[assembly: AssemblyTitle("Console GUI for the Abbot IRC Bot")]
-[assembly: AssemblyDescription("A simple Console GUI for the Abbot IRC Bot.")]
-[assembly: AssemblyCompany("Hannes Sachsenhofer")]
-[assembly: AssemblyCopyright("Copyright @  2005")]
-
-[assembly: AssemblyVersion("1.0.0.*")]
+[assembly: AssemblyTitle("Abbot GUI for Console")]
+[assembly: AssemblyProduct("Abbot GUI for Console")]
+[assembly: AssemblyDescription("A simple Console GUI for The Abbot IRC Bot.")]
+[assembly: AssemblyCompany("The Abbot project [http://Abbot.berlios.de]")]
+[assembly: AssemblyCopyright("(c) 2005 The Abbot Project")]
+[assembly: AssemblyVersion("1.1.0.*")]

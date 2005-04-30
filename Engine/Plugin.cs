@@ -1,6 +1,6 @@
 ﻿/*
 Abbot: The petite IRC bot
-Copyright (C) 2005 Hannes Sachsenhofer
+Copyright (C) 2005 The Abbot Project
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,14 +21,14 @@ namespace Abbot {
 	public abstract class Plugin {
 
 		#region " Constructor "
-		public Plugin(Abbot bot) {
+		public Plugin(Bot bot) {
 			this.bot = bot;
 		}
 		#endregion
 
 		#region " Properties "
-		Abbot bot;
-		protected Abbot Bot {
+		Bot bot;
+		protected Bot Bot {
 			get {
 				return bot;
 			}
@@ -36,19 +36,6 @@ namespace Abbot {
 		#endregion
 
 		#region " Methods "
-		public void BadSyntax(string network, string user) {
-			Bot.WriteNotice(network, GetNickFromUser(user), "Bad syntax.");
-		}
-
-		public static string GetNickFromUser(string user) {
-			return user.Substring(0, user.IndexOf("!"));
-		}
-
-		public static string GetIdentFromUser(string user) {
-			user = user.Substring(user.IndexOf("!") + 1);
-			return user.Substring(0, user.IndexOf("@"));
-		}
-
 		public static string Format(int i) {
 			if (i >= 10)
 				return i.ToString();
