@@ -70,10 +70,17 @@ namespace Abbot {
 			txtMessage.KeyDown += new KeyEventHandler(txtMessage_KeyDown);
 
 			bot = new Bot();
+			bot.OnRawMessage+=new IrcEventHandler(Bot_OnRawMessage);
+
 			bot.ConnectAll();
 
 			thread = new System.Threading.Thread(new System.Threading.ThreadStart(Log));
 			thread.Start();
+		}
+
+
+		void Bot_OnRawMessage(Network network, Irc.IrcEventArgs e) {
+			Console.WriteLine(e.Data.RawMessage);
 		}
 
 
@@ -93,6 +100,7 @@ namespace Abbot {
 			string s = writer.ToString();
 			if (s.Length > 10000)
 				s = s.Substring(s.Length - 10000);
+			s = s.Trim();				
 			txtLog.Text = s;
 		}
 

@@ -124,7 +124,7 @@ namespace Abbot {
 							plugins.Add(p);
 						}
 				}
-			Console.WriteLine();
+			Console.WriteLine("===============================================================================");
 			#endregion
 		}
 

@@ -43,7 +43,7 @@ namespace Abbot.Plugins {
 				if (r.IsMatch(e.Data.Message)) {
 					Match m = r.Match(e.Data.Message);
 
-					int count = 10;
+					int count = 2;
 					if (m.Groups["count"].Length > 0)
 						count = int.Parse(m.Groups["count"].Value);
 					if (count > 10)

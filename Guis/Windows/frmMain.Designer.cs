@@ -89,6 +89,7 @@ namespace Abbot {
 						| System.Windows.Forms.AnchorStyles.Right)));
 			this.txtLog.Location = new System.Drawing.Point(0, 28);
 			this.txtLog.Name = "txtLog";
+			this.txtLog.ReadOnly = true;
 			this.txtLog.Size = new System.Drawing.Size(732, 270);
 			this.txtLog.TabIndex = 4;
 			this.txtLog.Text = "";
