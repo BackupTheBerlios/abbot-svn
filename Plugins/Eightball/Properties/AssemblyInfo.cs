@@ -1,5 +1,5 @@
 ﻿/*
-Quote Plugin for the Abbot IRC Bot [http://abbot.berlios.de]
+Eightball Plugin for the Abbot IRC Bot [http://abbot.berlios.de]
 Copyright (C) 2005 Hannes Sachsenhofer [http://www.sachsenhofer.com]
 
 This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 #endregion
 
-[assembly: AssemblyTitle("Quote Plugin")]
+[assembly: AssemblyTitle("Eightball Plugin")]
 [assembly: AssemblyDescription("A plugin for the Abbot IRC Bot. Visit http://abbot.berlios.de for information.")]
 [assembly: AssemblyCompany("Hannes Sachsenhofer")]
-[assembly: AssemblyVersion("1.1.0.*")]
+[assembly: AssemblyVersion("1.0.0.*")]

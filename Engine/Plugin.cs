@@ -17,6 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+
 namespace Abbot {
 	public abstract class Plugin {
 
@@ -36,7 +39,25 @@ namespace Abbot {
 		#endregion
 
 		#region " Methods "
-		public static string Format(int i) {
+		protected static bool IsMatch(string pattern, string input) {
+			Regex r = new Regex(pattern);
+			return r.IsMatch(input);
+		}
+
+
+		protected static Dictionary<string, string> Matches(string pattern, string input) {
+			Regex r = new Regex(pattern);
+			if (!r.IsMatch(input))
+				return null;
+			Dictionary<string, string> d = new Dictionary<string, string>();
+			Match m=r.Match(input);
+			foreach (string s in m.Groups)
+				d.Add(s, m.Groups[s].Value);
+			return d;
+		}
+
+
+		protected static string Format(int i) {
 			if (i >= 10)
 				return i.ToString();
 			else

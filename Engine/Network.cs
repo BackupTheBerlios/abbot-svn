@@ -79,12 +79,12 @@ namespace Abbot {
 		string nickname;
 		public new string Nickname {
 			get {
-				return nickname;
+				return base.Nickname;
 			}
 			set {
 				if (IsConnected)
 					RfcNick(value);
-				this.nickname = value;
+				nickname = value;
 			}
 		}
 

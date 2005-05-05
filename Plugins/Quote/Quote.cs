@@ -1,6 +1,6 @@
 ﻿/*
-Abbot: The petite IRC bot
-Copyright (C) 2005 Hannes Sachsenhofer
+Quote Plugin for the Abbot IRC Bot [http://abbot.berlios.de]
+Copyright (C) 2005 Hannes Sachsenhofer [http://www.sachsenhofer.com]
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -110,6 +110,7 @@ namespace Abbot.Plugins {
 
 		#region " Event handles "
 		void Bot_OnChannelMessage(Network network,Irc.IrcEventArgs e) {
+
 			Regex r;
 
 			r = new Regex(@"^quote$");
