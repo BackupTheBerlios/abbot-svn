@@ -1,6 +1,6 @@
 ﻿/*
-Abbot: The petite IRC bot
-Copyright (C) 2005 Hannes Sachsenhofer
+GoogleSearch Plugin for the Abbot IRC Bot [http://abbot.berlios.de]
+Copyright (C) 2005 Hannes Sachsenhofer [http://www.sachsenhofer.com]
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,37 +32,45 @@ namespace Abbot.Plugins {
 		#region " Constructor/Destructor "
 		public GoogleSearch(Bot bot)
 			: base(bot) {
-			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnChannelMessage);
+			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnMessage);
+			Bot.OnQueryMessage += new IrcEventHandler(Bot_OnMessage);
 		}
 		#endregion
 
 		#region " Event Handles "
-		void Bot_OnChannelMessage(Network network, Irc.IrcEventArgs e) {
-			try {
-				Regex r = new Regex(@"^google ((?<count>\d*) )?(?<term>.*)$");
-				if (r.IsMatch(e.Data.Message)) {
-					Match m = r.Match(e.Data.Message);
+		void Bot_OnMessage(Network n, Irc.IrcEventArgs e) {
+			if (IsMatch("^googlesearch \\?$", e.Data.Message)) {
+				AnswerWithNotice(n, e, FormatBold("Use of GoogleSearch plugin:"));
+				AnswerWithNotice(n, e, FormatItalic("google <search term>") + " - Searches google for <search term> and lists the first two results.");
+				AnswerWithNotice(n, e, FormatItalic("google <number of results> <search term>") + " - Searches google for <search term> and lists the first <number of results> (maximum is 10) results.");
+			}
+			else if (IsMatch("^google ((?<count>\\d*) )?(?<term>.*)$", e.Data.Message)) {
+				int count = 2;
+				if (Matches["count"].Length > 0)
+					count = int.Parse(Matches["count"].ToString());
+				if (count > 10)
+					count = 10;
 
-					int count = 2;
-					if (m.Groups["count"].Length > 0)
-						count = int.Parse(m.Groups["count"].Value);
-					if (count > 10)
-						count = 10;
-
+				try {
 					Google.Google.GoogleSearchService s = new Google.Google.GoogleSearchService();
-					Google.Google.GoogleSearchResult results = s.doGoogleSearch(Bot.Configuration["Plugins"]["GoogleSearch"].Attributes["Key"].Value, m.Groups["term"].Value, 0, count, false, "", false, "", "", "");
+					Google.Google.GoogleSearchResult results = s.doGoogleSearch(Bot.Configuration["Plugins"]["GoogleSearch"].Attributes["Key"].Value, Matches["term"].ToString(), 0, count, false, "", false, "", "", "");
 
-					for (int i = 0; i < count; i++) {
-						string result = results.resultElements[i].URL + " (" + results.resultElements[i].title + ": " + results.resultElements[i].snippet + ")";
-						result = result.Replace("<b>", "").Replace("</b>", "").Replace("<br>", "").Replace("&#39;", "'").Replace("&amp;", "&");
-						;
-						network.SendMessage(Abbot.Irc.SendType.Message, e.Data.Channel, result);
+					if (count > results.resultElements.Length)
+						count = results.resultElements.Length;
+
+					if (count > 0) {
+						Answer(n, e, FormatBold(count.ToString() + " results for " + FormatItalic(Matches["term"].ToString()) + "."));
+						for (int i = 0; i < count; i++) {
+							string result = results.resultElements[i].URL + " (" + FormatBold(results.resultElements[i].title) + " - " + results.resultElements[i].snippet + ")";
+							result = result.Replace("<b>", "").Replace("</b>", "").Replace("<br>", "").Replace("&#39;", "'").Replace("&amp;", "&");
+							Answer(n, e, result);
+						}
 					}
-					return;
+					else
+						Answer(n, e, "No results found for " + FormatItalic(Matches["term"].ToString()) + ".");
+				} catch (Exception ex) {
+					Answer(n, e, "Error in GoogleSearch plugin: " + FormatItalic(ex.Message));
 				}
-
-			} catch (Exception ex) {
-				network.SendMessage(Abbot.Irc.SendType.Message, e.Data.Channel, "Exception in GoogleSearch Plugin: " + ex.Message);
 			}
 		}
 		#endregion

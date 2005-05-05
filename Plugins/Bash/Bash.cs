@@ -1,6 +1,6 @@
 ﻿/*
-Abbot: The petite IRC bot
-Copyright (C) 2005 Wolfgang Gottesheim, Hannes Sachsenhofer
+Bash Plugin for the Abbot IRC Bot [http://abbot.berlios.de]
+Copyright (C) 2005 Wolfgang Gottesheim, Hannes Sachsenhofer [http://www.sachsenhofer.com]
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,7 +32,8 @@ namespace Abbot.Plugins {
 		#region " Constructor/Destructor "
 		public Bash(Bot bot)
 			: base(bot) {
-			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnChannelMessage);
+			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnMessage);
+			Bot.OnQueryMessage += new IrcEventHandler(Bot_OnMessage);
 		}
 		#endregion
 
@@ -59,16 +60,20 @@ namespace Abbot.Plugins {
 			cutstring = cutstring.Replace("\r", "");
 			Match m = Regex.Match(responseString, "<a href=\".([0-9]{2,10})\" title");
 
-			n.SendMessage(Irc.SendType.Message, e.Data.Channel, "Bash Quote #" + m.Groups[1].Value);
+			n.SendMessage(Irc.SendType.Message, e.Data.Channel, FormatBold("bash.org quote #" + m.Groups[1].Value));
 			foreach (string s in cutstring.Split('\n'))
 				if (s.Length > 0)
-					n.SendMessage(Irc.SendType.Message, e.Data.Channel, s);
+					Answer(n, e, s);
 		}
 		#endregion
 
 		#region " Event handles "
-		void Bot_OnChannelMessage(Network network, Irc.IrcEventArgs e) {
-			if (e.Data.Message.ToLower() == "bash") {
+		void Bot_OnMessage(Network network, Irc.IrcEventArgs e) {
+			if (IsMatch("^bash \\?$", e.Data.Message)) {
+				AnswerWithNotice(n, e, FormatBold("Use of Bash plugin:"));
+				AnswerWithNotice(n, e, FormatItalic("bash") + " - Prints a random quote from http://www.bash.org.");
+			}
+			else if (IsMatch("^bash$", e.Data.Message)) {
 				this.n = network;
 				this.e = e;
 				new System.Threading.Thread(new ThreadStart(GetQuote)).Start();
