@@ -36,33 +36,99 @@ namespace Abbot {
 				return bot;
 			}
 		}
+
+		GroupCollection matches;
+		public GroupCollection Matches {
+			get {
+				return matches;
+			}
+
+			set {
+				matches = value;
+			}
+		} 
+
+
 		#endregion
 
 		#region " Methods "
-		protected static bool IsMatch(string pattern, string input) {
-			Regex r = new Regex(pattern);
-			return r.IsMatch(input);
+		protected internal bool IsMatch(string pattern, string input) {
+			Regex r = new Regex(pattern, RegexOptions.IgnoreCase);
+			if (r.IsMatch(input)) {
+				matches = r.Match(input).Groups;
+				return true;
+			}
+			else {
+				matches = null;
+				return false;
+			}
 		}
 
 
-		protected static Dictionary<string, string> Matches(string pattern, string input) {
-			Regex r = new Regex(pattern);
-			if (!r.IsMatch(input))
-				return null;
-			Dictionary<string, string> d = new Dictionary<string, string>();
-			Match m=r.Match(input);
-			foreach (string s in m.Groups)
-				d.Add(s, m.Groups[s].Value);
-			return d;
-		}
-
-
-		protected static string Format(int i) {
+		protected internal static string Format(int i) {
 			if (i >= 10)
 				return i.ToString();
 			else
 				return "0" + i.ToString();
 		}
+
+
+		protected internal static string FormatBold(string s) {
+			return "\u0002" + s + "\u0002";
+		}
+
+
+		protected internal static string FormatItalic(string s) {
+			return "\u0016" + s + "\u0016";
+		}
+
+
+		protected internal static string FormatUnderlined(string s) {
+			return "\u001F" + s + "\u001F";
+		}
+
+
+		protected internal static string FormatColor(string s, IrcColor foreground) {
+			return "\u0003" + ((int)foreground).ToString() + s + "\u0003" +  ((int)foreground).ToString();
+		}
+
+
+		protected internal static string FormatColor(string s, IrcColor foreground, IrcColor background) {
+			return "\u0003" + ((int)foreground).ToString() + "," + ((int)background).ToString() + s + "\u0003" + ((int)foreground).ToString() + "," + ((int)background).ToString();
+		}
+
+
+		protected internal static void Answer(Network n, Irc.IrcEventArgs e, string s) {
+			if (e.Data.Type == Irc.ReceiveType.QueryMessage)
+				n.SendMessage(Abbot.Irc.SendType.Message, e.Data.Nick, s);
+			else
+				n.SendMessage(Abbot.Irc.SendType.Message, e.Data.Channel, s);
+		}
+
+
+		protected static void AnswerWithNotice(Network n, Irc.IrcEventArgs e, string s) {
+			n.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, s);
+		}
 		#endregion
 	}
+
+	public enum IrcColor {
+		White = 00,
+		Black = 01,
+		Blue = 02,
+		Green = 03,
+		LightRed = 04,
+		Brown = 05,
+		Purple = 06,
+		Orange = 07,
+		Yellow = 08,
+		LightGreen = 09,
+		Cyan = 10,
+		LightCyan = 11,
+		LightBlue = 12,
+		Pink = 13,
+		Grey = 14,
+		LightGrey = 15
+	};
+
 }

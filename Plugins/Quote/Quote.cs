@@ -29,41 +29,41 @@ namespace Abbot.Plugins {
 	public class Quote : Plugin {
 
 		#region " Constructor/Destructor "
-		List<QuoteInfo> quotes;
 		Random r = new Random();
 		public Quote(Bot bot):base(bot) {
-			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnChannelMessage);
-			Load();
+			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnMessage);
+			Bot.OnQueryMessage += new IrcEventHandler(Bot_OnMessage);
 		}
 		#endregion
 
 		#region " Quote "
-		string GetQuote() {
-			return GetQuote(quotes);
+		string GetQuote(string type, List<QuoteInfo> quotes) {
+			return GetQuote(GetQuotes(type, quotes));
 		}
 
-		string GetQuote(string type) {
+		List<QuoteInfo> GetQuotes(string type, List<QuoteInfo> quotes) {
 			List<QuoteInfo> l = new List<QuoteInfo>();
 			foreach (QuoteInfo q in quotes)
 				if (q.Type.ToLower() == type.ToLower())
 					l.Add(q);
-			return GetQuote(l);
+			return l;
 		}
 
-		string GetQuote(List<QuoteInfo> l) {
-			if (l.Count <= 0)
+		string GetQuote(List<QuoteInfo> quotes) {
+			if (quotes.Count <= 0)
 				return "";
-			return l[r.Next(0, l.Count)].Text;
+			return quotes[r.Next(0, quotes.Count)].Text;
 		}
 
 		#region " Load/Save (Serialization) "
-		public void Save() {
+		public void Save(List<QuoteInfo> quotes) {
 			StreamWriter f = new StreamWriter("Data\\Quotes.xml", false);
 			new XmlSerializer(typeof(List<QuoteInfo>)).Serialize(f, quotes);
 			f.Close();
 		}
 
-		public void Load() {
+		public List<QuoteInfo> Load() {
+			List<QuoteInfo> quotes;
 			try {
 				FileStream f = new FileStream("Data\\Quotes.xml", FileMode.Open);
 				quotes = (List<QuoteInfo>)new XmlSerializer(typeof(List<QuoteInfo>)).Deserialize(f);
@@ -72,6 +72,7 @@ namespace Abbot.Plugins {
 				Console.WriteLine("# " + e.Message);
 				quotes = new List<QuoteInfo>();
 			}
+			return quotes;
 		}
 		#endregion
 
@@ -109,40 +110,85 @@ namespace Abbot.Plugins {
 		#endregion
 
 		#region " Event handles "
-		void Bot_OnChannelMessage(Network network,Irc.IrcEventArgs e) {
+		void Bot_OnMessage(Network n, Irc.IrcEventArgs e) {
 
-			Regex r;
-
-			r = new Regex(@"^quote$");
-			if (r.IsMatch(e.Data.Message)) {
-				string s = GetQuote();
-				if (s.Length <= 0) {
-					network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "I'm sorry, I don't know any quotes.");
-					return;
-				}
-				network.SendMessage(Abbot.Irc.SendType.Message, e.Data.Channel, s);
-				return;
+			if (IsMatch("^quote \\?$", e.Data.Message)) {
+				AnswerWithNotice(n, e, FormatBold("Use of Quote plugin:"));
+				AnswerWithNotice(n, e, FormatItalic("quote") + " - Prints a random quote.");
+				AnswerWithNotice(n, e, FormatItalic("quote <name>") + " - Prints a random quote from <name>.");
+				AnswerWithNotice(n, e, FormatItalic("add quote from <name> <quote>") + " - Adds the a quote from <name>.");
+				AnswerWithNotice(n, e, FormatItalic("list quotes") + " - Lists the sources of all quotes.");
+				AnswerWithNotice(n, e, FormatItalic("list quotes from <name>") + " - Lists all quotes of <name>.");
+				AnswerWithNotice(n, e, FormatItalic("remove quote [<number>] from <name>") + " - Removes the specified quote from <name>.");
+				AnswerWithNotice(n, e, FormatItalic("edit quote [<number>] from <name> <new quote>") + " - Changes the specified quote from <name> to <new quote>.");
 			}
-
-			r = new Regex(@"^quote (?<type>\w*)$");
-			if (r.IsMatch(e.Data.Message)) {
-				Match m = r.Match(e.Data.Message);
-				string s = GetQuote(m.Groups["type"].Value);
-				if (s.Length <= 0) {
-					network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "I'm sorry, I don't know any quotes.");
-					return;
-				}
-				network.SendMessage(Abbot.Irc.SendType.Message, e.Data.Channel, s);
-				return;
+			else if (IsMatch("^quote$", e.Data.Message)) {
+				string quote = GetQuote(Load());
+				if (quote.Length > 0)
+					Answer(n, e, quote);
+				else
+					AnswerWithNotice(n, e, "I'm sorry, but I don't know any quotes.");
 			}
-
-			r = new Regex(@"^add (?<type>\w*?) quote (?<text>.*)$");
-			if (r.IsMatch(e.Data.Message)) {
-				Match m = r.Match(e.Data.Message);
-				quotes.Add(new QuoteInfo(m.Groups["type"].Value, m.Groups["text"].Value));
-				network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "Your quote has been added.");
-				Save();
-				return;
+			else if (IsMatch("^quote (?<type>\\w*)$", e.Data.Message)) {
+				string quote = GetQuote(Matches["type"].ToString(), Load());
+				if (quote.Length > 0)
+					Answer(n, e, quote);
+				else
+					AnswerWithNotice(n, e, "I'm sorry, but I don't know any quotes from " + FormatItalic(Matches["type"].ToString()) + ".");
+			}
+			else if (IsMatch("^add quote from (?<type>\\w*?) (?<text>.*)$", e.Data.Message)) {
+				List<QuoteInfo> quotes = Load();
+				quotes.Add(new QuoteInfo(Matches["type"].ToString(), Matches["text"].ToString()));
+				Save(quotes);
+				AnswerWithNotice(n, e, "I added this quote from " + FormatItalic(Matches["type"].ToString()) + ".");
+			}
+			else if (IsMatch("^list quotes$", e.Data.Message)) {
+				List<QuoteInfo> quotes = Load();
+				if (quotes.Count > 0) {
+					List<string> names = new List<string>();
+					foreach (QuoteInfo q in quotes)
+						if (!names.Contains(q.Type.ToLower()))
+							names.Add(q.Type.ToLower());
+					AnswerWithNotice(n, e, FormatBold("The sources of all quotes:"));
+					foreach (string s in names)
+						AnswerWithNotice(n, e, s);
+				}
+				else
+					AnswerWithNotice(n, e, "I'm sorry, but I don't know any quotes.");
+			}
+			else if (IsMatch("^list quotes from (?<type>\\w*?)$", e.Data.Message)) {
+				List<QuoteInfo> quotes = GetQuotes(Matches["type"].ToString(), Load());
+				if (quotes.Count > 0) {
+					AnswerWithNotice(n, e, FormatBold("All Quotes from " + FormatItalic(Matches["type"].ToString()) + ":"));
+					for (int i = 0; i < quotes.Count; i++)
+						AnswerWithNotice(n, e, FormatBold("[" + Format(i) + "]") + " " + quotes[i].Text);
+				}
+				else
+					AnswerWithNotice(n, e, "I'm sorry, but I don't know any quotes from " + FormatItalic(Matches["type"].ToString()) + ".");
+			}
+			else if (IsMatch("^remove quote \\[(?<number>\\d*?)\\] from (?<type>\\w*?)$", e.Data.Message)) {
+				List<QuoteInfo> allQuotes = Load();
+				List<QuoteInfo> quotes = GetQuotes(Matches["type"].ToString(), allQuotes);
+				int i = int.Parse(Matches["number"].ToString());
+				if (quotes.Count >= i + 1) {
+					allQuotes.Remove(quotes[i]);
+					Save(allQuotes);
+					AnswerWithNotice(n, e, "I removed this quote from " + FormatItalic(Matches["type"].ToString()) + ".");
+				}
+				else
+					AnswerWithNotice(n, e, "I'm sorry, but this quote does not exist.");
+			}
+			else if (IsMatch("^edit quote \\[(?<number>\\d*?)\\] from (?<type>\\w*?) (?<text>.*)$", e.Data.Message)) {
+				List<QuoteInfo> allQuotes = Load();
+				List<QuoteInfo> quotes = GetQuotes(Matches["type"].ToString(), allQuotes);
+				int i = int.Parse(Matches["number"].ToString());
+				if (quotes.Count >= i + 1) {
+					quotes[i].Text = Matches["text"].ToString();
+					Save(allQuotes);
+					AnswerWithNotice(n, e, "I edited this quote from " + FormatItalic(Matches["type"].ToString()) + ".");
+				}
+				else
+					AnswerWithNotice(n, e, "I'm sorry, but this quote does not exist.");
 			}
 		}
 		#endregion

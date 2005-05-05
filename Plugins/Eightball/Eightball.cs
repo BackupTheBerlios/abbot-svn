@@ -39,14 +39,13 @@ namespace Abbot.Plugins {
 		#endregion
 
 		#region " Event handles "
-		void Bot_OnMessage(Network network, Irc.IrcEventArgs e) {
-			if (IsMatch("^" + network.Nickname + " .{7,}\\?\\s*$", e.Data.Message)) {
-				string answer = answers[r.Next(answers.Length)] + ", " + e.Data.Nick + ".";
-				if (e.Data.Type == Irc.ReceiveType.QueryMessage)
-					network.SendMessage(Abbot.Irc.SendType.Message, e.Data.Nick, answer);
-				else
-					network.SendMessage(Abbot.Irc.SendType.Message, e.Data.Channel, answer);
+		void Bot_OnMessage(Network n, Irc.IrcEventArgs e) {
+			if (IsMatch("^Eightball \\?$", e.Data.Message)) {
+				AnswerWithNotice(n, e, FormatBold("Use of Eightball plugin:"));
+				AnswerWithNotice(n, e, FormatItalic("<Botname> <your question, at least 7 characters long>?") + " - The bot will answer.");
 			}
+			else if (IsMatch("^" + n.Nickname + " .{7,}\\?\\s*$", e.Data.Message))
+				Answer(n, e, answers[r.Next(answers.Length)] + ", " + e.Data.Nick + ".");
 		}
 		#endregion
 	}
