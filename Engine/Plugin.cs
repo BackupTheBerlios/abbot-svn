@@ -106,8 +106,14 @@ namespace Abbot {
 		}
 
 
-		protected static void AnswerWithNotice(Network n, Irc.IrcEventArgs e, string s) {
+		protected internal static void AnswerWithNotice(Network n, Irc.IrcEventArgs e, string s) {
 			n.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, s);
+		}
+
+
+		protected internal static string GetFullUser(Network n, string nick) {
+			Irc.IrcUser u = n.GetIrcUser(nick);
+			return u.Nick + "!" + u.Ident + "@" + u.Host;
 		}
 		#endregion
 	}

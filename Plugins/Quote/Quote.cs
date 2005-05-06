@@ -116,6 +116,7 @@ namespace Abbot.Plugins {
 				AnswerWithNotice(n, e, FormatBold("Use of Quote plugin:"));
 				AnswerWithNotice(n, e, FormatItalic("quote") + " - Prints a random quote.");
 				AnswerWithNotice(n, e, FormatItalic("quote <name>") + " - Prints a random quote from <name>.");
+				AnswerWithNotice(n, e, FormatItalic("quote <name> [<number>]") + " - Prints the specified quote from <name>.");
 				AnswerWithNotice(n, e, FormatItalic("add quote from <name> <quote>") + " - Adds the a quote from <name>.");
 				AnswerWithNotice(n, e, FormatItalic("list quotes") + " - Lists the sources of all quotes.");
 				AnswerWithNotice(n, e, FormatItalic("list quotes from <name>") + " - Lists all quotes of <name>.");
@@ -135,6 +136,14 @@ namespace Abbot.Plugins {
 					Answer(n, e, quote);
 				else
 					AnswerWithNotice(n, e, "I'm sorry, but I don't know any quotes from " + FormatItalic(Matches["type"].ToString()) + ".");
+			}
+			else if (IsMatch("^quote (?<type>\\w*?) \\[(?<number>\\d*?)\\]$", e.Data.Message)) {
+				List<QuoteInfo> quotes = GetQuotes(Matches["type"].ToString(), Load());
+				int i = int.Parse(Matches["number"].ToString());
+				if (quotes.Count >= i + 1)
+					Answer(n, e, quotes[i].Text);
+				else
+					AnswerWithNotice(n, e, "I'm sorry, but this quote does not exist.");
 			}
 			else if (IsMatch("^add quote from (?<type>\\w*?) (?<text>.*)$", e.Data.Message)) {
 				List<QuoteInfo> quotes = Load();

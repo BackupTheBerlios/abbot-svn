@@ -1,6 +1,6 @@
 ﻿/*
-Abbot: The petite IRC bot
-Copyright (C) 2005 The Abbot project
+AutoOp Plugin for the Abbot IRC Bot [http://abbot.berlios.de]
+Copyright (C) 2005 Hannes Sachsenhofer [http://www.sachsenhofer.com]
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,24 +27,56 @@ namespace Abbot.Plugins {
 	public class AutoOp : Plugin {
 
 		#region " Constructor/Destructor "
-		List<string> ops = new List<string>();
 		public AutoOp(Bot bot)
 			: base(bot) {
-			Bot.OnJoin += new JoinEventHandler(Bot_UserJoins);
+			Bot.OnJoin += new JoinEventHandler(Bot_OnJoin);
+			Bot.OnDeop += new DeopEventHandler(Bot_OnDeop);
+			Bot.OnOp += new OpEventHandler(Bot_OnOp);
 
-			XmlElement xml = Bot.Configuration["Plugins"]["AutoOp"];
-			foreach (XmlElement e in xml.GetElementsByTagName("Op"))
-				ops.Add(e.InnerText);
+			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnMessage);
+			Bot.OnQueryMessage += new IrcEventHandler(Bot_OnMessage);
 		}
 		#endregion
 
-		#region " Event handles "
-		void Bot_UserJoins(Network network, Irc.JoinEventArgs e) {
-			foreach (String s in ops) {
-				System.Text.RegularExpressions.Regex r = new System.Text.RegularExpressions.Regex(s, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-				if (r.IsMatch(e.Data.From))
-					network.Op(e.Channel, e.Who);
+
+		#region " Methods "
+		void Op(Network n, string mask, string nick, string channel) {
+			foreach (XmlElement elem in Bot.Configuration["Plugins"]["AutoOp"].GetElementsByTagName("Op")) {
+				if (IsMatch(elem.InnerText, mask))
+					n.Op(channel, nick);
 			}
+		}
+
+		void DeOp(Network n, string mask, string nick, string channel) {
+			foreach (XmlElement elem in Bot.Configuration["Plugins"]["AutoOp"].GetElementsByTagName("DeOp")) {
+				if (IsMatch(elem.InnerText, mask))
+					n.Deop(channel, nick);
+			}
+		}
+		#endregion
+
+
+		#region " Event handles "
+		void Bot_OnMessage(Network n, Irc.IrcEventArgs e) {
+			if (IsMatch("^autoop \\?$", e.Data.Message)) {
+				AnswerWithNotice(n, e, FormatBold("Use of AutoOp plugin:"));
+				AnswerWithNotice(n, e, "No remote commands available. All configuration has to be done manually in the Configuration.xml.");
+			}
+		}
+
+
+		void Bot_OnJoin(Network n, Irc.JoinEventArgs e) {
+			Op(n, e.Data.From, e.Data.Nick, e.Data.Channel);
+		}
+
+
+		void Bot_OnOp(Network n, Irc.OpEventArgs e) {
+			DeOp(n, GetFullUser(n, e.Whom), e.Whom, e.Data.Channel);
+		}
+
+
+		void Bot_OnDeop(Network n, Abbot.Irc.DeopEventArgs e) {
+			Op(n, GetFullUser(n, e.Whom), e.Whom, e.Data.Channel);
 		}
 		#endregion
 	}
