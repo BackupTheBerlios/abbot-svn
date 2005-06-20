@@ -1,6 +1,6 @@
 ﻿/*
-Abbot: The petite IRC bot
-Copyright (C) 2005 Hannes Sachsenhofer
+Reminder Plugin for the Abbot IRC Bot [http://abbot.berlios.de]
+Copyright (C) 2005 Hannes Sachsenhofer [http://www.sachsenhofer.com]
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -30,15 +30,11 @@ namespace Abbot.Plugins {
 	public class Reminder : Plugin, IDisposable {
 
 		#region " Constructor/Destructor "
-		List<RemindInfo> remindInfos = new List<RemindInfo>();
-		Thread remindThread;
+		Thread t;
 		public Reminder(Bot bot)
 			: base(bot) {
-			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnChannelMessage);
-
-			Load();
-			remindThread = new Thread(new ThreadStart(RemindTick));
-			remindThread.Start();
+			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnMessage);
+			Bot.OnQueryMessage += new IrcEventHandler(Bot_OnMessage);
 		}
 
 		~Reminder() {
@@ -46,61 +42,60 @@ namespace Abbot.Plugins {
 		}
 
 		public void Dispose() {
-			remindThread.Abort();
+			t.Abort();
 		}
 		#endregion
 
 		#region " Remind "
-		void RemindTick() {
-			while (true) {
-				Thread.Sleep(20000);
-
-				DateTime start = DateTime.Now.AddSeconds(60);
-				DateTime end = DateTime.Now.AddSeconds(120);
-				List<RemindInfo> tmp = new List<RemindInfo>();
-				foreach (RemindInfo r in remindInfos) {
-					if (r.Date < start)
-						tmp.Add(r);
-					else if (r.Date > start && r.Date < end) {
-						tmp.Add(r);
-						Network n = Bot.GetNetworkByName(r.Network);
-						if (n != null)
-							n.SendMessage(Abbot.Irc.SendType.Message, r.Channel, r.User + ", time's up! " + r.Message);
-					}
-				}
-
-				foreach (RemindInfo r in tmp)
-					remindInfos.Remove(r);
-
-				if (tmp.Count > 0)
-					Save();
+		void StartThread() {
+			if (t == null || t.ThreadState != ThreadState.Running) {
+				t = new Thread(new ThreadStart(DoRemind));
+				t.Start();
 			}
 		}
 
-		List<RemindInfo> GetReminders(string user) {
-			List<RemindInfo> l = new List<RemindInfo>();
-			foreach (RemindInfo ri in remindInfos)
-				if (ri.User.ToLower() == user.ToLower())
-					l.Add(ri);
-			return l;
+		void DoRemind() {
+			List<RemindInfo> l = Load();
+			while (l.Count > 0) {
+				List<RemindInfo> tmp = new List<RemindInfo>();
+				foreach (RemindInfo i in l) {
+					if (i.Date < DateTime.Now) {
+						Network network = Bot.GetNetworkByName(i.Network);
+						if (network != null) {
+							if (i.IsPrivate)
+								network.SendMessage(Abbot.Irc.SendType.Message, i.User, i.User + ", time's up! " + i.Message);
+							else
+								network.SendMessage(Abbot.Irc.SendType.Message, i.Channel, i.User + ", time's up! " + i.Message);
+						}
+						tmp.Add(i);
+					}
+				}
+				foreach (RemindInfo i in tmp)
+					l.Remove(i);
+				if (tmp.Count > 0)
+					Save(l);
+				Thread.Sleep(10000);
+			}
 		}
 
 		#region " Load/Save (Serialization) "
-		public void Save() {
-			StreamWriter f = new StreamWriter("Data\\RemindMe.xml", false);
-			new XmlSerializer(typeof(List<RemindInfo>)).Serialize(f, remindInfos);
+		public void Save(List<RemindInfo> l) {
+			StreamWriter f = new StreamWriter("Data\\Reminder.xml", false);
+			new XmlSerializer(typeof(List<RemindInfo>)).Serialize(f, l);
 			f.Close();
 		}
 
-		public void Load() {
+		public List<RemindInfo> Load() {
+			List<RemindInfo> l;
 			try {
-				FileStream f = new FileStream("Data\\RemindMe.xml", FileMode.Open);
-				remindInfos = (List<RemindInfo>)new XmlSerializer(typeof(List<RemindInfo>)).Deserialize(f);
+				FileStream f = new FileStream("Data\\Reminder.xml", FileMode.Open);
+				l = (List<RemindInfo>)new XmlSerializer(typeof(List<RemindInfo>)).Deserialize(f);
 				f.Close();
 			} catch (Exception e) {
 				Console.WriteLine("# " + e.Message);
-				remindInfos = new List<RemindInfo>();
+				l = new List<RemindInfo>();
 			}
+			return l;
 		}
 		#endregion
 
@@ -111,13 +106,15 @@ namespace Abbot.Plugins {
 			public RemindInfo() {
 			}
 
-			public RemindInfo(DateTime date, string network, string channel, string user, string message) {
-				this.date = date;
-				this.network = network;
-				this.channel = channel;
-				this.user = user;
-				this.message = message;
-			}
+			bool isPrivate;
+			public bool IsPrivate {
+				get {
+					return isPrivate;
+				}
+				set {
+					isPrivate = value;
+				}
+			} 
 
 			DateTime date;
 			public DateTime Date {
@@ -173,55 +170,42 @@ namespace Abbot.Plugins {
 		#endregion
 
 		#region " Event Handles "
-		void Bot_OnChannelMessage(Network network, Irc.IrcEventArgs e) {
-			string message = e.Data.Message;
-			try {
-				if (e.Data.Message.StartsWith("remind me ")) {
-					message = message.Substring(10);
-					string t = e.Data.Message.Substring(0, e.Data.Message.IndexOf(" "));
-					message = e.Data.Message.Substring(3);
-					string u = e.Data.Nick;
-					string p = e.Data.Message.Substring(0, e.Data.Message.IndexOf(" "));
-					string m = e.Data.Message.Substring(e.Data.Message.IndexOf(" ") + 1);
-					if (t == "in") {
-						int minutes = int.Parse(p);
-						remindInfos.Add(new RemindInfo(DateTime.Now.AddMinutes(minutes), network.Name, e.Data.Channel, u, m));
-						network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "You will be reminded in " + minutes.ToString() + " minutes.");
-						Save();
-						return;
-					}
-					else if (t == "at") {
-						int minute = int.Parse(p.Substring(p.IndexOf(":") + 1));
-						int hour = int.Parse(p.Substring(0, p.IndexOf(":")));
-						DateTime d = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, hour, minute, 0);
-						if (d < DateTime.Now)
-							d.AddDays(1);
-						remindInfos.Add(new RemindInfo(d, network.Name, e.Data.Channel, u, m));
-						network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "You will be reminded at " + Format(hour) + ":" + Format(minute) + ".");
-						Save();
-						return;
-					}
-				}
+		void Bot_OnMessage(Network network, Irc.IrcEventArgs e) {
 
-				Regex r;
-				r = new Regex(@"^list reminders$");
-				if (r.IsMatch(e.Data.Message)) {
-					Console.WriteLine("LIST REMINDERS");
-					int i = 0;
-					foreach (RemindInfo ri in GetReminders(e.Data.Nick))
-						network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "[" + i.ToString() + "] - " + ri.Message + " - scheduled for " + ri.Date.ToLongDateString() + " " + ri.Date.ToShortTimeString() + ".");
-					return;
-				}
-
-				r = new Regex(@"^remove reminder \[(?<reminder>\d*)\]$");
-				if (r.IsMatch(e.Data.Message)) {
-					Match m = r.Match(e.Data.Message);
-					remindInfos.Remove(GetReminders(e.Data.Nick)[int.Parse(m.Groups["reminder"].Value)]);
-					network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "The reminder has been removed.");
-					Save();
-					return;
-				}
-			} catch {
+			if (IsMatch("^reminder \\?$", e.Data.Message)) {
+				AnswerWithNotice(network, e, FormatBold("Use of Reminder plugin:"));
+				AnswerWithNotice(network, e, FormatItalic("remind me in <minutes> <message>") + " - Reminds you in <minutes> minutes.");
+				AnswerWithNotice(network, e, FormatItalic("remind me at <hours>:<minutes> <message>") + " - Reminds you at the given time.");
+			}
+			else if (IsMatch("^remind me in (?<minutes>\\d{1,3}) (?<message>.*)$", e.Data.Message)) {
+				List<RemindInfo> l = Load();
+				RemindInfo i = new RemindInfo();
+				i.Network = network.Name;
+				i.Channel = e.Data.Channel;
+				i.User = e.Data.Nick;
+				i.Message = Matches["message"].ToString();
+				i.Date = DateTime.Now.AddMinutes(int.Parse(Matches["minutes"].ToString()));
+				i.IsPrivate = e.Data.Type == Irc.ReceiveType.QueryMessage;
+				l.Add(i);
+				Save(l);
+				StartThread();
+				AnswerWithNotice(network, e, "You will be reminded.");
+			}
+			else if (IsMatch("^remind me at (?<hours>\\d{1,2}):(?<minutes>\\d{1,2}) (?<message>.*)$",e.Data.Message)) {
+				List<RemindInfo> l = Load();
+				RemindInfo i = new RemindInfo();
+				i.Network = network.Name;
+				i.Channel = e.Data.Channel;
+				i.User = e.Data.Nick;
+				i.Message = Matches["message"].ToString();
+				i.Date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, int.Parse(Matches["hours"].ToString()), int.Parse(Matches["minutes"].ToString()), 0);
+				if (i.Date < DateTime.Now)
+					i.Date = i.Date.AddDays(1);
+				i.IsPrivate = e.Data.Type == Irc.ReceiveType.QueryMessage;
+				l.Add(i);
+				Save(l);
+				StartThread();
+				AnswerWithNotice(network, e, "You will be reminded.");
 			}
 		}
 		#endregion

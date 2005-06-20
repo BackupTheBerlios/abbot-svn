@@ -1,6 +1,6 @@
 ﻿/*
-Abbot: The petite IRC bot
-Copyright (C) 2005 The Abbot Project
+Reminder Plugin for the Abbot IRC Bot [http://abbot.berlios.de]
+Copyright (C) 2005 Hannes Sachsenhofer [http://www.sachsenhofer.com]
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,9 +22,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 #endregion
 
-[assembly: AssemblyTitle("Abbot IRC Bot")]
-[assembly: AssemblyProduct("Abbot IRC Bot")]
-[assembly: AssemblyDescription("A simple but extremly flexible and powerful IRC Bot.")]
-[assembly: AssemblyCompany("The Abbot project [http://Abbot.berlios.de]")]
-[assembly: AssemblyCopyright("(c) 2005 The Abbot Project")]
-[assembly: AssemblyVersion("1.1.2.*")]
+[assembly: AssemblyTitle("Reconnect Plugin")]
+[assembly: AssemblyDescription("A plugin for the Abbot IRC Bot. Visit http://abbot.berlios.de for information.")]
+[assembly: AssemblyCompany("Hannes Sachsenhofer")]
+[assembly: AssemblyVersion("1.0.0.*")]

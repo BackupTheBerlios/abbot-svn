@@ -1,5 +1,5 @@
-﻿/*
-Log Plugin for the Abbot IRC Bot [http://abbot.berlios.de]
+/*
+Reconnect Plugin for the Abbot IRC Bot [http://abbot.berlios.de]
 Copyright (C) 2005 Hannes Sachsenhofer [http://www.sachsenhofer.com]
 
 This program is free software; you can redistribute it and/or modify
@@ -24,32 +24,42 @@ using System.Threading;
 #endregion
 
 namespace Abbot.Plugins {
-	public class Log : Plugin {
+	public class Reconnect : Plugin {
 
 		#region " Constructor/Destructor "
-		public Log(Bot bot)
+		public Reconnect(Bot bot)
 			: base(bot) {
-			Bot.OnRawMessage += new IrcEventHandler(Bot_OnRawMessage);
+			Bot.OnDisconnected += new DisconnectedEventHandler(Bot_OnDisconnected);
+			Bot.OnKick += new KickEventHandler(Bot_OnKick);
+		}
+		#endregion
 
-			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnMessage);
-			Bot.OnQueryMessage += new IrcEventHandler(Bot_OnMessage);
+		#region " Methods "
+		Network n;
+		void DoReconnect() {
+			Network network = n;
+			while (!network.IsConnected) {
+				Thread.Sleep(30000);
+				Console.WriteLine("Trying to reconnect to " + network.Name + ".");
+				network.Connect();
+			}
 		}
 		#endregion
 
 		#region " Event handles "
-		void Bot_OnRawMessage(Network network, Irc.IrcEventArgs e) {
-			DateTime d = DateTime.Now;
-			System.IO.StreamWriter writer = new System.IO.StreamWriter("Logs\\" + d.Year + "." + d.Month + "." + d.Day + ".log", true);
-			writer.WriteLine(((TimeSpan)(DateTime.Now - new DateTime(1970, 1, 1))).TotalMilliseconds.ToString() + " " + e.Data.RawMessage);
-			writer.Close();
+		void Bot_OnDisconnected(Network network, EventArgs e) {
+			Console.WriteLine("Disconnected from " + network.Name + ".");
+			n = network;
+			new Thread(new ThreadStart(DoReconnect)).Start();
 		}
 
-		void Bot_OnMessage(Network n, Irc.IrcEventArgs e) {
-			if (IsMatch("^log \\?$", e.Data.Message)) {
-				AnswerWithNotice(n, e, FormatBold("Use of Log plugin:"));
-				AnswerWithNotice(n, e, "No remote commands available. Every IRC command gets logged in its raw form to a file in the \\Data subdirectory.");
+		void Bot_OnKick(Network network, Abbot.Irc.KickEventArgs e) {
+			if (e.Data.Nick == network.Nickname) {
+				Console.WriteLine("Rejoining " + e.Channel + " on " + network.Name + ".");
+				network.RfcJoin(e.Channel);
 			}
 		}
 		#endregion
+
 	}
 }

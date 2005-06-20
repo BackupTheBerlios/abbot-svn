@@ -105,6 +105,10 @@ namespace Abbot {
 				n.SendMessage(Abbot.Irc.SendType.Message, e.Data.Channel, s);
 		}
 
+		protected internal static void Answer(Network n, Irc.JoinEventArgs e, string s) {
+			n.SendMessage(Abbot.Irc.SendType.Message, e.Data.Channel, s);
+		}
+
 
 		protected internal static void AnswerWithNotice(Network n, Irc.IrcEventArgs e, string s) {
 			n.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, s);

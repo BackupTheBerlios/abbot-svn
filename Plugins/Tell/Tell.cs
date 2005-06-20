@@ -1,6 +1,6 @@
 ﻿/*
-Abbot: The petite IRC bot
-Copyright (C) 2005 Hannes Sachsenhofer
+Tell Plugin for the Abbot IRC Bot [http://abbot.berlios.de]
+Copyright (C) 2005 Hannes Sachsenhofer [http://www.sachsenhofer.com]
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,50 +29,48 @@ namespace Abbot.Plugins {
 	public class Tell : Plugin {
 
 		#region " Constructor/Destructor "
-		List<TellInfo> tellInfos;
 		public Tell(Bot bot)
 			: base(bot) {
-			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnChannelMessage);
+			Bot.OnChannelMessage+=new IrcEventHandler(Bot_OnMessage);
+			Bot.OnQueryMessage += new IrcEventHandler(Bot_OnMessage);
 			Bot.OnJoin += new JoinEventHandler(Bot_OnJoin);
-			Load();
 		}
 		#endregion
 
 		#region " Tell "
-		void Check(string network, string channel, string name) {
+		void Check(Network network, Irc.JoinEventArgs e) {
+			List<TellInfo> l = Load();
 			List<TellInfo> tmp = new List<TellInfo>();
-			foreach (TellInfo t in tellInfos)
-				if (t.Target == name && t.Network == network) {
+			foreach (TellInfo t in l)
+				if (t.Target == e.Data.Nick && t.Network == network.Name) {
 					tmp.Add(t);
-					Network n = Bot.GetNetworkByName(network);
-					if (n != null)
-						n.SendMessage(Abbot.Irc.SendType.Message, channel, name + ", on " + t.Date.ToLongDateString() + " " + t.Date.ToLongTimeString() + " " + t.Name + " wanted to tell you '" + t.Text + "'.");
+					Answer(network, e, FormatBold(e.Data.Nick) + ", on " + FormatBold(t.Date.ToLongDateString()) + " " + FormatBold(t.Date.ToLongTimeString()) + " " + FormatBold(t.Name) + " wanted to tell you " + FormatBold(t.Text) + ".");
 				}
-
-			if (tmp.Count > 0) {
-				foreach (TellInfo t in tmp)
-					tellInfos.Remove(t);
-				Save();
-			}
+			foreach (TellInfo t in tmp)
+				l.Remove(t);
+			if (tmp.Count > 0)
+				Save(l);
 		}
 
 
 		#region " Load/Save (Serialization) "
-		public void Save() {
+		public void Save(List<TellInfo> l) {
 			StreamWriter f = new StreamWriter("Data\\Tell.xml", false);
-			new XmlSerializer(typeof(List<TellInfo>)).Serialize(f, tellInfos);
+			new XmlSerializer(typeof(List<TellInfo>)).Serialize(f, l);
 			f.Close();
 		}
 
-		public void Load() {
+		public List<TellInfo> Load() {
+			List<TellInfo> l;
 			try {
 				FileStream f = new FileStream("Data\\Tell.xml", FileMode.Open);
-				tellInfos = (List<TellInfo>)new XmlSerializer(typeof(List<TellInfo>)).Deserialize(f);
+				l = (List<TellInfo>)new XmlSerializer(typeof(List<TellInfo>)).Deserialize(f);
 				f.Close();
 			} catch (Exception e) {
 				Console.WriteLine("# " + e.Message);
-				tellInfos = new List<TellInfo>();
+				l = new List<TellInfo>();
 			}
+			return l;
 		}
 		#endregion
 
@@ -80,16 +78,7 @@ namespace Abbot.Plugins {
 		[Serializable]
 		public class TellInfo {
 
-			public TellInfo() {
-			}
-
-			public TellInfo(string network, string name, string target, string text) {
-				this.date = DateTime.Now;
-				this.network = network;
-				this.name = name;
-				this.text = text;
-				this.target = target;
-			}
+			public TellInfo() {}
 
 			string target;
 			public string Target {
@@ -145,25 +134,29 @@ namespace Abbot.Plugins {
 		#endregion
 
 		#region " Event Handles "
-		void Bot_OnChannelMessage(Network network, Irc.IrcEventArgs e) {
-			try {
-				string message = e.Data.Message.ToLower();
-				if (message.StartsWith("tell ")) {
-					message = message.Substring(message.IndexOf(" ") + 1);
-					string name = message.Substring(0, message.IndexOf(" "));
-					message = message.Substring(message.IndexOf(" ") + 1);
-					tellInfos.Add(new TellInfo(network.Name, e.Data.Nick, name, message));
-					network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "I'll tell '" + name + "' your message.");
-					Save();
-				}
-			} catch {
+		void Bot_OnMessage(Network network, Irc.IrcEventArgs e) {
+
+			if (IsMatch("^tell \\?$", e.Data.Message)) {
+				AnswerWithNotice(network, e, FormatBold("Use of Tell plugin:"));
+				AnswerWithNotice(network, e, FormatItalic("tell <recipient> <message>") + " - Tells <recipient> the <message> the next time he joins.");
+			}
+			else if (IsMatch("^tell (?<target>.*?) (?<message>.*)$", e.Data.Message)) {
+				List<TellInfo> l = Load();
+				TellInfo t = new TellInfo();
+				t.Date = DateTime.Now;
+				t.Name = e.Data.Nick;
+				t.Network = network.Name;
+				t.Target = Matches["target"].ToString();
+				t.Text = Matches["message"].ToString();
+				l.Add(t);
+				Save(l);
+				AnswerWithNotice(network, e, "I'll tell your message.");
 			}
 		}
 
 		void Bot_OnJoin(Network network, Irc.JoinEventArgs e) {
-			Check(network.Name, e.Data.Channel, e.Data.Nick);
+			Check(network, e);
 		}
-
 		#endregion
 	}
 }

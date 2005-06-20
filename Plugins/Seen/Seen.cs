@@ -1,6 +1,6 @@
 ﻿/*
-Abbot: The petite IRC bot
-Copyright (C) 2005 Hannes Sachsenhofer
+Seen Plugin for the Abbot IRC Bot [http://abbot.berlios.de]
+Copyright (C) 2005 Hannes Sachsenhofer [http://www.sachsenhofer.com]
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,39 +29,43 @@ namespace Abbot.Plugins {
 	public class Seen : Plugin {
 
 		#region " Constructor/Destructor "
-		List<SeenInfo> seenInfos;
 		public Seen(Bot bot)
 			: base(bot) {
-			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnChannelMessage);
+			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnMessage);
+			Bot.OnQueryMessage += new IrcEventHandler(Bot_OnMessage);
 			Bot.OnJoin += new JoinEventHandler(Bot_OnJoin);
 			Bot.OnPart += new PartEventHandler(Bot_OnPart);
 			Bot.OnQuit += new QuitEventHandler(Bot_OnQuit);
 			Bot.OnNickChange += new NickChangeEventHandler(Bot_OnNickChange);
-
-			Load();
 		}
 		#endregion
 
 		#region " Seen "
-		SeenInfo FindName(string network, string name) {
-			foreach (SeenInfo i in seenInfos)
+		SeenInfo FindName(string network, string name, List<SeenInfo> l) {
+			foreach (SeenInfo i in l)
 				if (i.Network == network && i.Names.Contains(name))
 					return i;
 			return null;
 		}
 
-		SeenInfo FindIdent(string network, string ident) {
-			foreach (SeenInfo i in seenInfos)
+		SeenInfo FindIdent(string network, string ident, List<SeenInfo> l) {
+			foreach (SeenInfo i in l)
 				if (i.Ident == ident && i.Network == network)
 					return i;
 			return null;
 		}
 
 		void NewSeen(string network, string nick, string ident, string text) {
-			SeenInfo i = FindIdent(network, ident);
+			List<SeenInfo> l = Load();
+			SeenInfo i = FindIdent(network, ident, l);
 			if (i == null) {
-				i = new SeenInfo(network, ident, text);
-				seenInfos.Add(i);
+				i = new SeenInfo();
+				i.Date = DateTime.Now;
+				i.Ident = ident;
+				i.Names = new List<string>();
+				i.Network = network;
+				i.Text = text;
+				l.Add(i);
 			}
 			else {
 				i.Date = DateTime.Now;
@@ -71,25 +75,31 @@ namespace Abbot.Plugins {
 			if (!i.Names.Contains(nick))
 				i.Names.Add(nick);
 
-			Save();
+			Save(l);
 		}
 
 		#region " Load/Save (Serialization) "
-		public void Save() {
-			StreamWriter f = new StreamWriter("Data\\Seen.xml", false);
-			new XmlSerializer(typeof(List<SeenInfo>)).Serialize(f, seenInfos);
-			f.Close();
-		}
-
-		public void Load() {
+		public void Save(List<SeenInfo> l) {
 			try {
-				FileStream f = new FileStream("Data\\Seen.xml", FileMode.Open);
-				seenInfos = (List<SeenInfo>)new XmlSerializer(typeof(List<SeenInfo>)).Deserialize(f);
+				StreamWriter f = new StreamWriter("Data\\Seen.xml", false);
+				new XmlSerializer(typeof(List<SeenInfo>)).Serialize(f, l);
 				f.Close();
 			} catch (Exception e) {
-				Console.WriteLine("# " + e.Message);
-				seenInfos = new List<SeenInfo>();
+				Console.WriteLine("#SEEN_SAVE " + e.Message);
 			}
+		}
+
+		public List<SeenInfo> Load() {
+			List<SeenInfo> l;
+			try {
+				FileStream f = new FileStream("Data\\Seen.xml", FileMode.Open);
+				l = (List<SeenInfo>)new XmlSerializer(typeof(List<SeenInfo>)).Deserialize(f);
+				f.Close();
+			} catch (Exception e) {
+				Console.WriteLine("#SEEN_LOAD " + e.Message);
+				l = new List<SeenInfo>();
+			}
+			return l;
 		}
 		#endregion
 
@@ -98,13 +108,6 @@ namespace Abbot.Plugins {
 		public class SeenInfo {
 
 			public SeenInfo() {
-			}
-
-			public SeenInfo(string network, string ident, string text) {
-				this.date = DateTime.Now;
-				this.network = network;
-				this.ident = ident;
-				this.text = text;
 			}
 
 			List<string> names = new List<string>();
@@ -161,25 +164,25 @@ namespace Abbot.Plugins {
 		#endregion
 
 		#region " Event Handles "
-		void Bot_OnChannelMessage(Network network, Irc.IrcEventArgs e) {
-			NewSeen(network.Name, e.Data.Nick, e.Data.Ident, "on " + e.Data.Channel + ", saying '" + e.Data.Message + "'");
-			try {
-				if (e.Data.Message.StartsWith("seen ")) {
-					string name = e.Data.Message.Substring(e.Data.Message.IndexOf(" ") + 1);
-					SeenInfo i = FindName(network.Name, name);
-					if (i == null) {
-						network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "I never saw a '" + name + "' before.");
-					}
-					else if (i.Ident == e.Data.Ident) {
-						network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "Looking for yourself?");
-					}
-					else {
-						TimeSpan t = (TimeSpan)(DateTime.Now - i.Date);
-						network.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, "I saw " + name + " " + Convert.ToInt16(t.TotalHours).ToString() + " hours, " + t.Minutes.ToString() + " minutes and " + t.Seconds.ToString() + " seconds ago, " + i.Text + ".");
-					}
-				}
-			} catch {
+		void Bot_OnMessage(Network network, Irc.IrcEventArgs e) {
+			if (IsMatch("^seen \\?$", e.Data.Message)) {
+				AnswerWithNotice(network, e, FormatBold("Use of Seen plugin:"));
+				AnswerWithNotice(network, e, FormatItalic("seen <nick>") + " - Displays information when the Bot last saw <nick>.");
 			}
+			else if (IsMatch("^seen (?<nick>.*)$", e.Data.Message)) {
+				List<SeenInfo> l = Load();
+				SeenInfo i = FindName(network.Name, Matches["nick"].ToString(), l);
+				if (i == null)
+					Answer(network, e, "I never saw " + Matches["nick"].ToString() + " before.");
+				else if (i.Ident == e.Data.Ident)
+					Answer(network, e, "Looking for yourself, eh?");
+				else {
+					TimeSpan t = (TimeSpan)(DateTime.Now - i.Date);
+					Answer(network, e, "I saw " + Matches["nick"].ToString() + " " + Convert.ToInt16(t.TotalHours).ToString() + " hours and " + t.Minutes.ToString() + " minutes ago, " + i.Text + ".");
+				}
+			}
+			else
+				NewSeen(network.Name, e.Data.Nick, e.Data.Ident, "on " + e.Data.Channel + ", saying " + e.Data.Message);
 		}
 
 		void Bot_OnJoin(Network network, Irc.JoinEventArgs e) {

@@ -686,11 +686,13 @@ namespace Abbot.Irc
                 _Thread.Start();
             }
 
-            public void Stop()
-            {
-                _Thread.Abort();
-                _Connection._Reader.Close();
-            }
+			public void Stop() {
+				try {
+					_Thread.Abort();
+					_Connection._Reader.Close();
+				} catch {
+				}
+			}
 
             private void _Worker()
             {

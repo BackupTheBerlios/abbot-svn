@@ -27,7 +27,7 @@ namespace Abbot {
 	public class Network : IrcClient, IDisposable {
 
 		#region " Constructor/Destructor/Dispose "
-		public Network() { }
+		public Network() {}
 
 		~Network() {
 			Dispose();
@@ -41,27 +41,29 @@ namespace Abbot {
 		#region " Connect/Disconnect "
 		Thread listenThread;
 		public void Connect() {
-			base.SendDelay = sendDelay;
-			base.ActiveChannelSyncing = true;
-			base.Connect(servers.ToArray(), port);
-			if (usePassword)
-				base.Login(nickname, realname, 0, username, password);
-			else
-				base.Login(nickname, realname, 0, username);
+			try {
+				base.SendDelay = sendDelay;
+				base.ActiveChannelSyncing = true;
+				base.Connect(servers.ToArray(), port);
+				if (usePassword)
+					base.Login(nickname, realname, 0, username, password);
+				else
+					base.Login(nickname, realname, 0, username);
 
-			foreach (string channel in channels)
-				base.RfcJoin(channel);
+				foreach (string channel in channels)
+					base.RfcJoin(channel);
 
-			listenThread = new Thread(new ThreadStart(Listen));
-			listenThread.Name = "ListenThreadFor" + name;
-			listenThread.Start();
+				listenThread = new Thread(new ThreadStart(base.Listen));
+				listenThread.Name = "ListenThreadFor" + name;
+				listenThread.Start();
+			} catch (Exception e) {
+				Console.WriteLine("# " + e.Message);
+			}
 		}
 
 		public new void Disconnect() {
-			listenThread.Abort();
 			RfcQuit("Abbot IRC bot [http://abbot.berlios.de]");
-			if (this.IsConnected)
-				base.Disconnect();
+			base.Disconnect();
 		}
 		#endregion
 

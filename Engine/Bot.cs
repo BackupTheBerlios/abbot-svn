@@ -450,7 +450,7 @@ namespace Abbot {
 		public event EventHandler OnConnecting;
 		public event EventHandler OnConnected;
 		public event EventHandler OnDisconnecting;
-		public event EventHandler OnDisconnected;
+		public event DisconnectedEventHandler OnDisconnected;
 		public event EventHandler OnConnectionError;
 		#endregion
 
@@ -482,5 +482,6 @@ namespace Abbot {
 	public delegate void MotdEventHandler(Network network, Irc.MotdEventArgs e);
 	public delegate void ReadLineEventHandler(Network network, Irc.ReadLineEventArgs e);
 	public delegate void WriteLineEventHandler(Network network, Irc.WriteLineEventArgs e);
+	public delegate void DisconnectedEventHandler(Network network, EventArgs e);
 	#endregion
 }
