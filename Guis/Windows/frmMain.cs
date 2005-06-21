@@ -100,8 +100,9 @@ namespace Abbot {
 			string s = writer.ToString();
 			if (s.Length > 10000)
 				s = s.Substring(s.Length - 10000);
-			s = s.Trim();				
-			txtLog.Text = s;
+			s = s.Trim();
+			if (txtLog.Text != s)
+				txtLog.Text = s;
 		}
 
 
@@ -118,9 +119,10 @@ namespace Abbot {
 
 
 		void txtLog_TextChanged(object sender, EventArgs e) {
+			txtLog.Focus();
 			txtLog.SelectionStart = txtLog.Text.Length;
+			txtLog.SelectionLength = 0;
 			txtLog.ScrollToCaret();
-			this.Focus();
 		}
 
 
@@ -129,11 +131,6 @@ namespace Abbot {
 				bot.Networks[0].SendMessage(Abbot.Irc.SendType.Message,bot.Networks[0].Channels[0], txtMessage.Text);
 				txtMessage.Text = "";
 			}
-		}
-
-
-		private void mnuOptions_Click(object sender, EventArgs e) {
-			(new frmOptions()).ShowDialog(this);
 		}
 
 	}

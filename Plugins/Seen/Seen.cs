@@ -29,6 +29,7 @@ namespace Abbot.Plugins {
 	public class Seen : Plugin {
 
 		#region " Constructor/Destructor "
+		List<SeenInfo> l;
 		public Seen(Bot bot)
 			: base(bot) {
 			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnMessage);
@@ -37,6 +38,7 @@ namespace Abbot.Plugins {
 			Bot.OnPart += new PartEventHandler(Bot_OnPart);
 			Bot.OnQuit += new QuitEventHandler(Bot_OnQuit);
 			Bot.OnNickChange += new NickChangeEventHandler(Bot_OnNickChange);
+			l=Load();
 		}
 		#endregion
 
@@ -56,7 +58,6 @@ namespace Abbot.Plugins {
 		}
 
 		void NewSeen(string network, string nick, string ident, string text) {
-			List<SeenInfo> l = Load();
 			SeenInfo i = FindIdent(network, ident, l);
 			if (i == null) {
 				i = new SeenInfo();
@@ -85,7 +86,7 @@ namespace Abbot.Plugins {
 				new XmlSerializer(typeof(List<SeenInfo>)).Serialize(f, l);
 				f.Close();
 			} catch (Exception e) {
-				Console.WriteLine("#SEEN_SAVE " + e.Message);
+				Console.WriteLine("#" + e.Message);
 			}
 		}
 
@@ -96,7 +97,7 @@ namespace Abbot.Plugins {
 				l = (List<SeenInfo>)new XmlSerializer(typeof(List<SeenInfo>)).Deserialize(f);
 				f.Close();
 			} catch (Exception e) {
-				Console.WriteLine("#SEEN_LOAD " + e.Message);
+				Console.WriteLine("#" + e.Message);
 				l = new List<SeenInfo>();
 			}
 			return l;
@@ -170,15 +171,20 @@ namespace Abbot.Plugins {
 				AnswerWithNotice(network, e, FormatItalic("seen <nick>") + " - Displays information when the Bot last saw <nick>.");
 			}
 			else if (IsMatch("^seen (?<nick>.*)$", e.Data.Message)) {
-				List<SeenInfo> l = Load();
 				SeenInfo i = FindName(network.Name, Matches["nick"].ToString(), l);
 				if (i == null)
 					Answer(network, e, "I never saw " + Matches["nick"].ToString() + " before.");
 				else if (i.Ident == e.Data.Ident)
 					Answer(network, e, "Looking for yourself, eh?");
 				else {
+					string hour = "hours";
+					string minute = "minutes";
 					TimeSpan t = (TimeSpan)(DateTime.Now - i.Date);
-					Answer(network, e, "I saw " + Matches["nick"].ToString() + " " + Convert.ToInt16(t.TotalHours).ToString() + " hours and " + t.Minutes.ToString() + " minutes ago, " + i.Text + ".");
+					if (t.TotalHours == 1)
+						hour = "hour";
+					if (t.Minutes == 1)
+						minute = "minute";
+					Answer(network, e, "I saw " + Matches["nick"].ToString() + " " + Convert.ToInt16(t.TotalHours).ToString() + " " + hour + " and " + t.Minutes.ToString() + " " + minute + " ago, " + i.Text + ".");
 				}
 			}
 			else

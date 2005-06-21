@@ -27,4 +27,4 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyDescription("A simple Windows GUI for The Abbot IRC Bot.")]
 [assembly: AssemblyCompany("The Abbot project [http://Abbot.berlios.de]")]
 [assembly: AssemblyCopyright("(c) 2005 The Abbot Project")]
-[assembly: AssemblyVersion("1.1.0.*")]
+[assembly: AssemblyVersion("1.1.1.*")]

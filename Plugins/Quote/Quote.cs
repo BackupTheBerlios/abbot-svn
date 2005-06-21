@@ -137,7 +137,7 @@ namespace Abbot.Plugins {
 				else
 					AnswerWithNotice(n, e, "I'm sorry, but I don't know any quotes from " + FormatItalic(Matches["type"].ToString()) + ".");
 			}
-			else if (IsMatch("^quote (?<type>\\w*?) \\[(?<number>\\d*?)\\]$", e.Data.Message)) {
+			else if (IsMatch("^quote (?<type>\\w*?) \\[(?<number>\\d{1,2})\\]$", e.Data.Message)) {
 				List<QuoteInfo> quotes = GetQuotes(Matches["type"].ToString(), Load());
 				int i = int.Parse(Matches["number"].ToString());
 				if (quotes.Count >= i + 1)
@@ -175,7 +175,7 @@ namespace Abbot.Plugins {
 				else
 					AnswerWithNotice(n, e, "I'm sorry, but I don't know any quotes from " + FormatItalic(Matches["type"].ToString()) + ".");
 			}
-			else if (IsMatch("^remove quote \\[(?<number>\\d*?)\\] from (?<type>\\w*?)$", e.Data.Message)) {
+			else if (IsMatch("^remove quote \\[(?<number>\\d{1,3})\\] from (?<type>\\w*?)$", e.Data.Message)) {
 				List<QuoteInfo> allQuotes = Load();
 				List<QuoteInfo> quotes = GetQuotes(Matches["type"].ToString(), allQuotes);
 				int i = int.Parse(Matches["number"].ToString());
@@ -187,7 +187,7 @@ namespace Abbot.Plugins {
 				else
 					AnswerWithNotice(n, e, "I'm sorry, but this quote does not exist.");
 			}
-			else if (IsMatch("^edit quote \\[(?<number>\\d*?)\\] from (?<type>\\w*?) (?<text>.*)$", e.Data.Message)) {
+			else if (IsMatch("^edit quote \\[(?<number>\\d{1,3})\\] from (?<type>\\w*?) (?<text>.*)$", e.Data.Message)) {
 				List<QuoteInfo> allQuotes = Load();
 				List<QuoteInfo> quotes = GetQuotes(Matches["type"].ToString(), allQuotes);
 				int i = int.Parse(Matches["number"].ToString());

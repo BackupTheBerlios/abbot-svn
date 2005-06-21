@@ -222,7 +222,7 @@ namespace Abbot.Plugins {
 					AnswerWithNotice(n, e, "There are no upcoming events.");
 				return;
 			}
-			else if (IsMatch("^add event (?<day>\\d*)\\.(?<month>\\d*)\\.(?<year>\\d*) (?<hour>\\d*):(?<minute>\\d*) (?<text>.*)$", e.Data.Message)) {
+			else if (IsMatch("^add event (?<day>\\d{1,2})\\.(?<month>\\d{1,2})\\.(?<year>\\d{4}) (?<hour>\\d{1,2}):(?<minute>\\d{1,2}) (?<text>.*)$", e.Data.Message)) {
 				DateTime d = new DateTime(int.Parse(Matches["year"].ToString()), int.Parse(Matches["month"].ToString()), int.Parse(Matches["day"].ToString()), int.Parse(Matches["hour"].ToString()), int.Parse(Matches["minute"].ToString()), 0);
 				List<EventInfo> eventInfos = Load();
 				eventInfos.Add(new EventInfo(d, Matches["text"].ToString()));
@@ -230,9 +230,14 @@ namespace Abbot.Plugins {
 				AnswerWithNotice(n, e, "I added the event.");
 				return;
 			}
-			else if (IsMatch("^add (?<nick>\\w*) to \\[(?<event>\\d*)\\]$", e.Data.Message)) {
+			else if (IsMatch("^add (?<nick>\\w*) to \\[(?<event>\\d{1,3})\\]$", e.Data.Message)) {
 				List<EventInfo> eventInfos = Load();
-				EventInfo eventinfo = eventInfos[int.Parse(Matches["event"].ToString())];
+				int i=int.Parse(Matches["event"].ToString());
+				if (i >= eventInfos.Count) {
+					AnswerWithNotice(n, e, "There is no such event.");
+					return;
+				}
+				EventInfo eventinfo = eventInfos[i];
 				string nick = Matches["nick"].ToString();
 				if (nick.ToLower() == "me")
 					nick = e.Data.Nick;
@@ -242,9 +247,14 @@ namespace Abbot.Plugins {
 				AnswerWithNotice(n, e, "I added " + FormatItalic(nick) + " as " + FormatItalic("there") + ".");
 				return;
 			}
-			else if (IsMatch("^add (?<nick>\\w*) not to \\[(?<event>\\d*)\\]$", e.Data.Message)) {
+			else if (IsMatch("^add (?<nick>\\w*) not to \\[(?<event>\\d{1,3})\\]$", e.Data.Message)) {
 				List<EventInfo> eventInfos = Load();
-				EventInfo eventinfo = eventInfos[int.Parse(Matches["event"].ToString())];
+				int i = int.Parse(Matches["event"].ToString());
+				if (i >= eventInfos.Count) {
+					AnswerWithNotice(n, e, "There is no such event.");
+					return;
+				}
+				EventInfo eventinfo = eventInfos[i];
 				string nick = Matches["nick"].ToString();
 				if (nick.ToLower() == "me")
 					nick = e.Data.Nick;
@@ -254,9 +264,14 @@ namespace Abbot.Plugins {
 				AnswerWithNotice(n, e, "I added " + FormatItalic(nick) + " as " + FormatItalic("not there") + ".");
 				return;
 			}
-			else if (IsMatch("^add (?<nick>\\w*) maybe to \\[(?<event>\\d*)\\]$", e.Data.Message)) {
+			else if (IsMatch("^add (?<nick>\\w*) maybe to \\[(?<event>\\d{1,3})\\]$", e.Data.Message)) {
 				List<EventInfo> eventInfos = Load();
-				EventInfo eventinfo = eventInfos[int.Parse(Matches["event"].ToString())];
+				int i = int.Parse(Matches["event"].ToString());
+				if (i >= eventInfos.Count) {
+					AnswerWithNotice(n, e, "There is no such event.");
+					return;
+				}
+				EventInfo eventinfo = eventInfos[i];
 				string nick = Matches["nick"].ToString();
 				if (nick.ToLower() == "me")
 					nick = e.Data.Nick;
@@ -266,26 +281,41 @@ namespace Abbot.Plugins {
 				AnswerWithNotice(n, e, "I added " + FormatItalic(nick) + " as " + FormatItalic("maybe there") + ".");
 				return;
 			}
-			else if (IsMatch("^remove (?<nick>\\w*) from \\[(?<event>\\d*)\\]$", e.Data.Message)) {
+			else if (IsMatch("^remove (?<nick>\\w*) from \\[(?<event>\\d{1,3})\\]$", e.Data.Message)) {
 				string nick = Matches["nick"].ToString();
 				if (nick.ToLower() == "me")
 					nick = e.Data.Nick;
 				List<EventInfo> eventInfos = Load();
-				Remove(nick, eventInfos[int.Parse(Matches["event"].ToString())]);
+				int i = int.Parse(Matches["event"].ToString());
+				if (i >= eventInfos.Count) {
+					AnswerWithNotice(n, e, "There is no such event.");
+					return;
+				}
+				Remove(nick, eventInfos[i]);
 				Save(eventInfos);
 				AnswerWithNotice(n, e, "I removed " + FormatItalic(nick) + ".");
 				return;
 			}
-			else if (IsMatch("^remove event \\[(?<event>\\d*)\\]$", e.Data.Message)) {
+			else if (IsMatch("^remove event \\[(?<event>\\d{1,3})\\]$", e.Data.Message)) {
 				List<EventInfo> eventInfos = Load();
-				eventInfos.RemoveAt(int.Parse(Matches["event"].ToString()));
+				int i = int.Parse(Matches["event"].ToString());
+				if (i >= eventInfos.Count) {
+					AnswerWithNotice(n, e, "There is no such event.");
+					return;
+				}
+				eventInfos.RemoveAt(i);
 				Save(eventInfos);
 				AnswerWithNotice(n, e, "I removed the event.");
 				return;
 			}
-			else if (IsMatch("^clear event \\[(?<event>\\d*)\\]$", e.Data.Message)) {
+			else if (IsMatch("^clear event \\[(?<event>\\d{1,3})\\]$", e.Data.Message)) {
 				List<EventInfo> eventInfos = Load();
-				EventInfo eventinfo = eventInfos[int.Parse(Matches["event"].ToString())];
+				int i = int.Parse(Matches["event"].ToString());
+				if (i >= eventInfos.Count) {
+					AnswerWithNotice(n, e, "There is no such event.");
+					return;
+				}
+				EventInfo eventinfo = eventInfos[i];
 				eventinfo.There.Clear();
 				eventinfo.MaybeThere.Clear();
 				eventinfo.NotThere.Clear();
@@ -293,9 +323,14 @@ namespace Abbot.Plugins {
 				AnswerWithNotice(n, e, "I cleared the event.");
 				return;
 			}
-			else if (IsMatch("^edit event \\[(?<event>\\d*)\\] (?<day>\\d*)\\.(?<month>\\d*)\\.(?<year>\\d*) (?<hour>\\d*):(?<minute>\\d*) (?<text>.*)$", e.Data.Message)) {
+			else if (IsMatch("^edit event \\[(?<event>\\d{1,3})\\] (?<day>\\d{1,2})\\.(?<month>\\d{1,2})\\.(?<year>\\d{4}) (?<hour>\\d{1,2}):(?<minute>\\d{1,2}) (?<text>.*)$", e.Data.Message)) {
 				List<EventInfo> eventInfos = Load();
-				EventInfo eventinfo = eventInfos[int.Parse(Matches["event"].ToString())];
+				int i = int.Parse(Matches["event"].ToString());
+				if (i >= eventInfos.Count) {
+					AnswerWithNotice(n, e, "There is no such event.");
+					return;
+				}
+				EventInfo eventinfo = eventInfos[i];
 				DateTime d = new DateTime(int.Parse(Matches["year"].ToString()), int.Parse(Matches["month"].ToString()), int.Parse(Matches["day"].ToString()), int.Parse(Matches["hour"].ToString()), int.Parse(Matches["minute"].ToString()), 0);
 				eventinfo.Date = d;
 				eventinfo.Text = Matches["text"].ToString();

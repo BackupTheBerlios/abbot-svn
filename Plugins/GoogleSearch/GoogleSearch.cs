@@ -44,7 +44,7 @@ namespace Abbot.Plugins {
 				AnswerWithNotice(n, e, FormatItalic("google <search term>") + " - Searches google for <search term> and lists the first two results.");
 				AnswerWithNotice(n, e, FormatItalic("google <number of results> <search term>") + " - Searches google for <search term> and lists the first <number of results> (maximum is 10) results.");
 			}
-			else if (IsMatch("^google ((?<count>\\d*) )?(?<term>.*)$", e.Data.Message)) {
+			else if (IsMatch("^google ((?<count>\\d{1,2}) )?(?<term>.*)$", e.Data.Message)) {
 				int count = 2;
 				if (Matches["count"].Length > 0)
 					count = int.Parse(Matches["count"].ToString());

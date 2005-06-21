@@ -45,36 +45,18 @@ namespace Abbot {
 			this.components = new System.ComponentModel.Container();
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
 			this.txtMessage = new System.Windows.Forms.TextBox();
-			this.MainMenu = new System.Windows.Forms.MenuStrip();
-			this.mnuOptions = new System.Windows.Forms.ToolStripMenuItem();
 			this.SystrayIcon = new System.Windows.Forms.NotifyIcon(this.components);
-			this.txtLog = new System.Windows.Forms.RichTextBox();
-			this.MainMenu.SuspendLayout();
+			this.txtLog = new System.Windows.Forms.TextBox();
 			this.SuspendLayout();
 			// 
 			// txtMessage
 			// 
-			this.txtMessage.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.txtMessage.Location = new System.Drawing.Point(0, 304);
+			this.txtMessage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
+			this.txtMessage.Location = new System.Drawing.Point(13, 181);
 			this.txtMessage.Name = "txtMessage";
-			this.txtMessage.Size = new System.Drawing.Size(732, 20);
+			this.txtMessage.Size = new System.Drawing.Size(540, 20);
 			this.txtMessage.TabIndex = 0;
-			// 
-			// MainMenu
-			// 
-			this.MainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuOptions});
-			this.MainMenu.Location = new System.Drawing.Point(0, 0);
-			this.MainMenu.Name = "MainMenu";
-			this.MainMenu.Size = new System.Drawing.Size(732, 24);
-			this.MainMenu.TabIndex = 3;
-			this.MainMenu.Text = "mnuMain";
-			// 
-			// mnuOptions
-			// 
-			this.mnuOptions.Name = "mnuOptions";
-			this.mnuOptions.Text = "&Options";
-			this.mnuOptions.Click += new System.EventHandler(this.mnuOptions_Click);
 			// 
 			// SystrayIcon
 			// 
@@ -87,28 +69,29 @@ namespace Abbot {
 			this.txtLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
 						| System.Windows.Forms.AnchorStyles.Left)
 						| System.Windows.Forms.AnchorStyles.Right)));
-			this.txtLog.Location = new System.Drawing.Point(0, 28);
+			this.txtLog.BackColor = System.Drawing.SystemColors.HighlightText;
+			this.txtLog.Location = new System.Drawing.Point(13, 11);
+			this.txtLog.Multiline = true;
 			this.txtLog.Name = "txtLog";
 			this.txtLog.ReadOnly = true;
-			this.txtLog.Size = new System.Drawing.Size(732, 270);
-			this.txtLog.TabIndex = 4;
-			this.txtLog.Text = "";
+			this.txtLog.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+			this.txtLog.Size = new System.Drawing.Size(540, 156);
+			this.txtLog.TabIndex = 1;
+			this.txtLog.WordWrap = false;
+			this.txtLog.TextChanged += new System.EventHandler(this.txtLog_TextChanged);
 			// 
 			// frmMain
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(732, 324);
+			this.ClientSize = new System.Drawing.Size(565, 213);
 			this.Controls.Add(this.txtLog);
 			this.Controls.Add(this.txtMessage);
-			this.Controls.Add(this.MainMenu);
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-			this.MainMenuStrip = this.MainMenu;
 			this.Name = "frmMain";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Abbot: The petite IRC bot";
 			this.Load += new System.EventHandler(this.frmMain_Load);
-			this.MainMenu.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -117,9 +100,7 @@ namespace Abbot {
 		#endregion
 
 		private System.Windows.Forms.TextBox txtMessage;
-		private System.Windows.Forms.MenuStrip MainMenu;
-		private System.Windows.Forms.ToolStripMenuItem mnuOptions;
 		private System.Windows.Forms.NotifyIcon SystrayIcon;
-		private System.Windows.Forms.RichTextBox txtLog;
+		private System.Windows.Forms.TextBox txtLog;
 	}
 }

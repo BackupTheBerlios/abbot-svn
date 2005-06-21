@@ -40,27 +40,65 @@ namespace Abbot.Plugins {
 		#region " Bash "
 		Network n;
 		Irc.IrcEventArgs e;
-		void GetQuote() {
+		void GetGermanBash() {
+			Network n = this.n;
+			Irc.IrcEventArgs e = this.e;
+
+			HttpWebRequest httpReq = (HttpWebRequest)WebRequest.Create("http://german-bash.org/action/random/n/1");
+			httpReq.Method = "GET";
+			WebResponse httpRes = httpReq.GetResponse();
+			StreamReader stream = new StreamReader(httpRes.GetResponseStream());
+			string responseString = stream.ReadToEnd();
+			stream.Close();
+			httpRes.Close();
+
+			Regex r = new Regex("\\<div class=\"zitat\"\\>(?<text>.*?)\\</div\\>",RegexOptions.Singleline);
+			string text = r.Match(responseString).Groups["text"].ToString();
+			r = new Regex("\\<a name=\"(?<number>\\d*)\"\\>\\</a\\>");
+			string number = r.Match(responseString).Groups["number"].ToString();
+
+			text = text.Replace("&lt;", "<");
+			text = text.Replace("&gt;", ">");
+			text = text.Replace("&quot;", "\"");
+			text = text.Replace("<br />", "\r\n");
+			text = text.Replace("&nbsp;", " ");
+			text = text.Replace("&uuml;", "ü");
+			text = text.Replace("&auml;", "ä");
+			text = text.Replace("&ouml;", "ö");
+			text = text.Replace("\r", "");
+			text = text.Replace("\t", "");
+			text = text.Trim();
+
+			Answer(n, e, FormatBold("german-bash.org quote #" + number));
+			foreach (string s in text.Split('\n'))
+				if (s.Length > 0)
+					Answer(n, e, s);
+		}
+
+
+		void GetBash() {
 			Network n = this.n;
 			Irc.IrcEventArgs e = this.e;
 			HttpWebRequest httpReq = (HttpWebRequest)WebRequest.Create("http://bash.org/?random");
 			httpReq.Method = "GET";
-
 			WebResponse httpRes = httpReq.GetResponse();
 			StreamReader stream = new StreamReader(httpRes.GetResponseStream());
 			string responseString = stream.ReadToEnd();
+			stream.Close();
+			httpRes.Close();
 
 			int start = Regex.Match(responseString, "class=\"qt\"").Index + 11;
 			int end = Regex.Match(responseString, "</p>\n<p class=\"quote\">").Index;
 			string cutstring = responseString.Substring(start, end - start);
-			cutstring = Regex.Replace(cutstring, "&lt;", "<");
-			cutstring = Regex.Replace(cutstring, "&gt;", ">");
-			cutstring = Regex.Replace(cutstring, "&quot;", "\"");
-			cutstring = Regex.Replace(cutstring, "<br />", "\r\n");
+			cutstring = cutstring.Replace("&lt;", "<");
+			cutstring = cutstring.Replace("&gt;", ">");
+			cutstring = cutstring.Replace("&quot;", "\"");
+			cutstring = cutstring.Replace("<br />", "\r\n");
+			cutstring = cutstring.Replace("&nbsp;", " ");
 			cutstring = cutstring.Replace("\r", "");
 			Match m = Regex.Match(responseString, "<a href=\".([0-9]{2,10})\" title");
 
-			n.SendMessage(Irc.SendType.Message, e.Data.Channel, FormatBold("bash.org quote #" + m.Groups[1].Value));
+			Answer(n, e, FormatBold("bash.org quote #" + m.Groups[1].Value));
 			foreach (string s in cutstring.Split('\n'))
 				if (s.Length > 0)
 					Answer(n, e, s);
@@ -76,7 +114,12 @@ namespace Abbot.Plugins {
 			else if (IsMatch("^bash$", e.Data.Message)) {
 				this.n = network;
 				this.e = e;
-				new System.Threading.Thread(new ThreadStart(GetQuote)).Start();
+				new System.Threading.Thread(new ThreadStart(GetBash)).Start();
+			}
+			else if (IsMatch("^german bash$", e.Data.Message)) {
+				this.n = network;
+				this.e = e;
+				new System.Threading.Thread(new ThreadStart(GetGermanBash)).Start();
 			}
 		}
 		#endregion
