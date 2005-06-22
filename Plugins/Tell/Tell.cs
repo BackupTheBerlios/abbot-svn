@@ -39,7 +39,7 @@ namespace Abbot.Plugins {
 
 		#region " Tell "
 		void Check(Network network, Irc.JoinEventArgs e) {
-			List<TellInfo> l = Load();
+			List<TellInfo> l = LoadFromFile<List<TellInfo>>("Tell");
 			List<TellInfo> tmp = new List<TellInfo>();
 			foreach (TellInfo t in l)
 				if (t.Target == e.Data.Nick && t.Network == network.Name) {
@@ -49,30 +49,8 @@ namespace Abbot.Plugins {
 			foreach (TellInfo t in tmp)
 				l.Remove(t);
 			if (tmp.Count > 0)
-				Save(l);
+				SaveToFile<List<TellInfo>>(l,"Tell");
 		}
-
-
-		#region " Load/Save (Serialization) "
-		public void Save(List<TellInfo> l) {
-			StreamWriter f = new StreamWriter("Data\\Tell.xml", false);
-			new XmlSerializer(typeof(List<TellInfo>)).Serialize(f, l);
-			f.Close();
-		}
-
-		public List<TellInfo> Load() {
-			List<TellInfo> l;
-			try {
-				FileStream f = new FileStream("Data\\Tell.xml", FileMode.Open);
-				l = (List<TellInfo>)new XmlSerializer(typeof(List<TellInfo>)).Deserialize(f);
-				f.Close();
-			} catch (Exception e) {
-				Console.WriteLine("# " + e.Message);
-				l = new List<TellInfo>();
-			}
-			return l;
-		}
-		#endregion
 
 		#region " TellInfo Class "
 		[Serializable]
@@ -141,7 +119,7 @@ namespace Abbot.Plugins {
 				AnswerWithNotice(network, e, FormatItalic("tell <recipient> <message>") + " - Tells <recipient> the <message> the next time he joins.");
 			}
 			else if (IsMatch("^tell (?<target>.*?) (?<message>.*)$", e.Data.Message)) {
-				List<TellInfo> l = Load();
+				List<TellInfo> l = LoadFromFile<List<TellInfo>>("Tell");
 				TellInfo t = new TellInfo();
 				t.Date = DateTime.Now;
 				t.Name = e.Data.Nick;
@@ -149,7 +127,7 @@ namespace Abbot.Plugins {
 				t.Target = Matches["target"].ToString();
 				t.Text = Matches["message"].ToString();
 				l.Add(t);
-				Save(l);
+				SaveToFile<List<TellInfo>>(l, "Tell");
 				AnswerWithNotice(network, e, "I'll tell your message.");
 			}
 		}

@@ -55,27 +55,6 @@ namespace Abbot.Plugins {
 			return quotes[r.Next(0, quotes.Count)].Text;
 		}
 
-		#region " Load/Save (Serialization) "
-		public void Save(List<QuoteInfo> quotes) {
-			StreamWriter f = new StreamWriter("Data\\Quotes.xml", false);
-			new XmlSerializer(typeof(List<QuoteInfo>)).Serialize(f, quotes);
-			f.Close();
-		}
-
-		public List<QuoteInfo> Load() {
-			List<QuoteInfo> quotes;
-			try {
-				FileStream f = new FileStream("Data\\Quotes.xml", FileMode.Open);
-				quotes = (List<QuoteInfo>)new XmlSerializer(typeof(List<QuoteInfo>)).Deserialize(f);
-				f.Close();
-			} catch (Exception e) {
-				Console.WriteLine("# " + e.Message);
-				quotes = new List<QuoteInfo>();
-			}
-			return quotes;
-		}
-		#endregion
-
 		#region " QuoteInfo "
 		public class QuoteInfo {
 
@@ -124,21 +103,21 @@ namespace Abbot.Plugins {
 				AnswerWithNotice(n, e, FormatItalic("edit quote [<number>] from <name> <new quote>") + " - Changes the specified quote from <name> to <new quote>.");
 			}
 			else if (IsMatch("^quote$", e.Data.Message)) {
-				string quote = GetQuote(Load());
+				string quote = GetQuote(LoadFromFile<List<QuoteInfo>>("Quotes"));
 				if (quote.Length > 0)
 					Answer(n, e, quote);
 				else
 					AnswerWithNotice(n, e, "I'm sorry, but I don't know any quotes.");
 			}
 			else if (IsMatch("^quote (?<type>\\w*)$", e.Data.Message)) {
-				string quote = GetQuote(Matches["type"].ToString(), Load());
+				string quote = GetQuote(Matches["type"].ToString(), LoadFromFile<List<QuoteInfo>>("Quotes"));
 				if (quote.Length > 0)
 					Answer(n, e, quote);
 				else
 					AnswerWithNotice(n, e, "I'm sorry, but I don't know any quotes from " + FormatItalic(Matches["type"].ToString()) + ".");
 			}
 			else if (IsMatch("^quote (?<type>\\w*?) \\[(?<number>\\d{1,2})\\]$", e.Data.Message)) {
-				List<QuoteInfo> quotes = GetQuotes(Matches["type"].ToString(), Load());
+				List<QuoteInfo> quotes = GetQuotes(Matches["type"].ToString(), LoadFromFile<List<QuoteInfo>>("Quotes"));
 				int i = int.Parse(Matches["number"].ToString());
 				if (quotes.Count >= i + 1)
 					Answer(n, e, quotes[i].Text);
@@ -146,13 +125,13 @@ namespace Abbot.Plugins {
 					AnswerWithNotice(n, e, "I'm sorry, but this quote does not exist.");
 			}
 			else if (IsMatch("^add quote from (?<type>\\w*?) (?<text>.*)$", e.Data.Message)) {
-				List<QuoteInfo> quotes = Load();
+				List<QuoteInfo> quotes = LoadFromFile<List<QuoteInfo>>("Quotes");
 				quotes.Add(new QuoteInfo(Matches["type"].ToString(), Matches["text"].ToString()));
-				Save(quotes);
+				SaveToFile<List<QuoteInfo>>(quotes, "Quotes");
 				AnswerWithNotice(n, e, "I added this quote from " + FormatItalic(Matches["type"].ToString()) + ".");
 			}
 			else if (IsMatch("^list quotes$", e.Data.Message)) {
-				List<QuoteInfo> quotes = Load();
+				List<QuoteInfo> quotes = LoadFromFile<List<QuoteInfo>>("Quotes");
 				if (quotes.Count > 0) {
 					List<string> names = new List<string>();
 					foreach (QuoteInfo q in quotes)
@@ -166,7 +145,7 @@ namespace Abbot.Plugins {
 					AnswerWithNotice(n, e, "I'm sorry, but I don't know any quotes.");
 			}
 			else if (IsMatch("^list quotes from (?<type>\\w*?)$", e.Data.Message)) {
-				List<QuoteInfo> quotes = GetQuotes(Matches["type"].ToString(), Load());
+				List<QuoteInfo> quotes = GetQuotes(Matches["type"].ToString(), LoadFromFile<List<QuoteInfo>>("Quotes"));
 				if (quotes.Count > 0) {
 					AnswerWithNotice(n, e, FormatBold("All Quotes from " + FormatItalic(Matches["type"].ToString()) + ":"));
 					for (int i = 0; i < quotes.Count; i++)
@@ -176,24 +155,24 @@ namespace Abbot.Plugins {
 					AnswerWithNotice(n, e, "I'm sorry, but I don't know any quotes from " + FormatItalic(Matches["type"].ToString()) + ".");
 			}
 			else if (IsMatch("^remove quote \\[(?<number>\\d{1,3})\\] from (?<type>\\w*?)$", e.Data.Message)) {
-				List<QuoteInfo> allQuotes = Load();
+				List<QuoteInfo> allQuotes = LoadFromFile<List<QuoteInfo>>("Quotes");
 				List<QuoteInfo> quotes = GetQuotes(Matches["type"].ToString(), allQuotes);
 				int i = int.Parse(Matches["number"].ToString());
 				if (quotes.Count >= i + 1) {
 					allQuotes.Remove(quotes[i]);
-					Save(allQuotes);
+					SaveToFile<List<QuoteInfo>>(quotes, "Quotes");
 					AnswerWithNotice(n, e, "I removed this quote from " + FormatItalic(Matches["type"].ToString()) + ".");
 				}
 				else
 					AnswerWithNotice(n, e, "I'm sorry, but this quote does not exist.");
 			}
 			else if (IsMatch("^edit quote \\[(?<number>\\d{1,3})\\] from (?<type>\\w*?) (?<text>.*)$", e.Data.Message)) {
-				List<QuoteInfo> allQuotes = Load();
+				List<QuoteInfo> allQuotes = LoadFromFile<List<QuoteInfo>>("Quotes");
 				List<QuoteInfo> quotes = GetQuotes(Matches["type"].ToString(), allQuotes);
 				int i = int.Parse(Matches["number"].ToString());
 				if (quotes.Count >= i + 1) {
 					quotes[i].Text = Matches["text"].ToString();
-					Save(allQuotes);
+					SaveToFile<List<QuoteInfo>>(quotes, "Quotes");
 					AnswerWithNotice(n, e, "I edited this quote from " + FormatItalic(Matches["type"].ToString()) + ".");
 				}
 				else

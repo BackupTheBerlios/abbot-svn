@@ -25,4 +25,4 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyTitle("Bash.org Plugin")]
 [assembly: AssemblyDescription("A plugin for the Abbot IRC Bot. Visit http://abbot.berlios.de for information.")]
 [assembly: AssemblyCompany("Wolfgang Gottesheim, Hannes Sachsenhofer")]
-[assembly: AssemblyVersion("1.2.1.*")]
+[assembly: AssemblyVersion("1.2.2.*")]

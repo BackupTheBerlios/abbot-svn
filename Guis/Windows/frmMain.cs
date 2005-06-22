@@ -56,6 +56,7 @@ namespace Abbot {
 
 
 		private void btnClose_Click(object sender, EventArgs e) {
+			bot.DisconnectAll();
 			Application.Exit();
 		}
 

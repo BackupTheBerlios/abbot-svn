@@ -54,7 +54,7 @@ namespace Abbot.Plugins {
 		}
 
 		void Bot_OnKick(Network network, Abbot.Irc.KickEventArgs e) {
-			if (e.Data.Nick == network.Nickname) {
+			if (e.Whom == network.Nickname) {
 				Console.WriteLine("Rejoining " + e.Channel + " on " + network.Name + ".");
 				network.RfcJoin(e.Channel);
 			}

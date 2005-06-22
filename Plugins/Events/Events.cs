@@ -47,7 +47,7 @@ namespace Abbot.Plugins {
 			if (l.Count > 0) {
 				foreach (EventInfo e in l)
 					eventInfos.Remove(e);
-				Save(eventInfos);
+				SaveToFile<List<EventInfo>>(eventInfos,"Events");
 			}
 		}
 
@@ -56,28 +56,6 @@ namespace Abbot.Plugins {
 			e.MaybeThere.Remove(nick);
 			e.NotThere.Remove(nick);
 		}
-
-		#region " Load/Save (Serialization) "
-		public void Save(List<EventInfo> eventInfos) {
-			eventInfos.Sort(new EventInfoComparer());
-
-			StreamWriter f = new StreamWriter("Data\\Events.xml", false);
-			new XmlSerializer(typeof(List<EventInfo>)).Serialize(f, eventInfos);
-			f.Close();
-		}
-
-		public List<EventInfo> Load() {
-			try {
-				FileStream f = new FileStream("Data\\Events.xml", FileMode.Open);
-				List<EventInfo> eventInfos = (List<EventInfo>)new XmlSerializer(typeof(List<EventInfo>)).Deserialize(f);
-				f.Close();
-				return eventInfos;
-			} catch (Exception e) {
-				Console.WriteLine("# " + e.Message);
-				return new List<EventInfo>();
-			}
-		}
-		#endregion
 
 		#region " EventInfoComparer "
 		class EventInfoComparer : IComparer<EventInfo> {
@@ -168,7 +146,7 @@ namespace Abbot.Plugins {
 
 		#region " Event Handles "
 		void Bot_OnJoin(Network n, Irc.JoinEventArgs e) {
-			List<EventInfo> eventInfos = Load();
+			List<EventInfo> eventInfos = LoadFromFile<List<EventInfo>>("Events");
 			DeleteOldEvents(eventInfos);
 			int i = eventInfos.Count;
 			if (i==1)
@@ -194,7 +172,7 @@ namespace Abbot.Plugins {
 				AnswerWithNotice(n, e, FormatItalic("clear event [<number>]") + " - Removes all the there/not there/maybe there nicknames from the specified event, but leaves the event itself intact.");
 			}
 			else if (IsMatch("^list events$", e.Data.Message)) {
-				List<EventInfo> eventInfos = Load();
+				List<EventInfo> eventInfos = LoadFromFile<List<EventInfo>>("Events");
 				DeleteOldEvents(eventInfos);
 				int i = 0;
 				foreach (EventInfo eventinfo in eventInfos) {
@@ -224,14 +202,15 @@ namespace Abbot.Plugins {
 			}
 			else if (IsMatch("^add event (?<day>\\d{1,2})\\.(?<month>\\d{1,2})\\.(?<year>\\d{4}) (?<hour>\\d{1,2}):(?<minute>\\d{1,2}) (?<text>.*)$", e.Data.Message)) {
 				DateTime d = new DateTime(int.Parse(Matches["year"].ToString()), int.Parse(Matches["month"].ToString()), int.Parse(Matches["day"].ToString()), int.Parse(Matches["hour"].ToString()), int.Parse(Matches["minute"].ToString()), 0);
-				List<EventInfo> eventInfos = Load();
+				List<EventInfo> eventInfos = LoadFromFile<List<EventInfo>>("Events");
 				eventInfos.Add(new EventInfo(d, Matches["text"].ToString()));
-				Save(eventInfos);
+				eventInfos.Sort(new EventInfoComparer());
+				SaveToFile<List<EventInfo>>(eventInfos, "Events");
 				AnswerWithNotice(n, e, "I added the event.");
 				return;
 			}
 			else if (IsMatch("^add (?<nick>\\w*) to \\[(?<event>\\d{1,3})\\]$", e.Data.Message)) {
-				List<EventInfo> eventInfos = Load();
+				List<EventInfo> eventInfos = LoadFromFile<List<EventInfo>>("Events");
 				int i=int.Parse(Matches["event"].ToString());
 				if (i >= eventInfos.Count) {
 					AnswerWithNotice(n, e, "There is no such event.");
@@ -243,12 +222,13 @@ namespace Abbot.Plugins {
 					nick = e.Data.Nick;
 				Remove(nick, eventinfo);
 				eventinfo.There.Add(nick);
-				Save(eventInfos);
+				eventInfos.Sort(new EventInfoComparer());
+				SaveToFile<List<EventInfo>>(eventInfos, "Events");
 				AnswerWithNotice(n, e, "I added " + FormatItalic(nick) + " as " + FormatItalic("there") + ".");
 				return;
 			}
 			else if (IsMatch("^add (?<nick>\\w*) not to \\[(?<event>\\d{1,3})\\]$", e.Data.Message)) {
-				List<EventInfo> eventInfos = Load();
+				List<EventInfo> eventInfos = LoadFromFile<List<EventInfo>>("Events");
 				int i = int.Parse(Matches["event"].ToString());
 				if (i >= eventInfos.Count) {
 					AnswerWithNotice(n, e, "There is no such event.");
@@ -260,12 +240,13 @@ namespace Abbot.Plugins {
 					nick = e.Data.Nick;
 				Remove(nick, eventinfo);
 				eventinfo.NotThere.Add(nick);
-				Save(eventInfos);
+				eventInfos.Sort(new EventInfoComparer());
+				SaveToFile<List<EventInfo>>(eventInfos, "Events");
 				AnswerWithNotice(n, e, "I added " + FormatItalic(nick) + " as " + FormatItalic("not there") + ".");
 				return;
 			}
 			else if (IsMatch("^add (?<nick>\\w*) maybe to \\[(?<event>\\d{1,3})\\]$", e.Data.Message)) {
-				List<EventInfo> eventInfos = Load();
+				List<EventInfo> eventInfos = LoadFromFile<List<EventInfo>>("Events");
 				int i = int.Parse(Matches["event"].ToString());
 				if (i >= eventInfos.Count) {
 					AnswerWithNotice(n, e, "There is no such event.");
@@ -277,7 +258,8 @@ namespace Abbot.Plugins {
 					nick = e.Data.Nick;
 				Remove(nick, eventinfo);
 				eventinfo.MaybeThere.Add(nick);
-				Save(eventInfos);
+				eventInfos.Sort(new EventInfoComparer());
+				SaveToFile<List<EventInfo>>(eventInfos, "Events");
 				AnswerWithNotice(n, e, "I added " + FormatItalic(nick) + " as " + FormatItalic("maybe there") + ".");
 				return;
 			}
@@ -285,31 +267,33 @@ namespace Abbot.Plugins {
 				string nick = Matches["nick"].ToString();
 				if (nick.ToLower() == "me")
 					nick = e.Data.Nick;
-				List<EventInfo> eventInfos = Load();
+				List<EventInfo> eventInfos = LoadFromFile<List<EventInfo>>("Events");
 				int i = int.Parse(Matches["event"].ToString());
 				if (i >= eventInfos.Count) {
 					AnswerWithNotice(n, e, "There is no such event.");
 					return;
 				}
 				Remove(nick, eventInfos[i]);
-				Save(eventInfos);
+				eventInfos.Sort(new EventInfoComparer());
+				SaveToFile<List<EventInfo>>(eventInfos, "Events");
 				AnswerWithNotice(n, e, "I removed " + FormatItalic(nick) + ".");
 				return;
 			}
 			else if (IsMatch("^remove event \\[(?<event>\\d{1,3})\\]$", e.Data.Message)) {
-				List<EventInfo> eventInfos = Load();
+				List<EventInfo> eventInfos = LoadFromFile<List<EventInfo>>("Events");
 				int i = int.Parse(Matches["event"].ToString());
 				if (i >= eventInfos.Count) {
 					AnswerWithNotice(n, e, "There is no such event.");
 					return;
 				}
 				eventInfos.RemoveAt(i);
-				Save(eventInfos);
+				eventInfos.Sort(new EventInfoComparer());
+				SaveToFile<List<EventInfo>>(eventInfos, "Events");
 				AnswerWithNotice(n, e, "I removed the event.");
 				return;
 			}
 			else if (IsMatch("^clear event \\[(?<event>\\d{1,3})\\]$", e.Data.Message)) {
-				List<EventInfo> eventInfos = Load();
+				List<EventInfo> eventInfos = LoadFromFile<List<EventInfo>>("Events");
 				int i = int.Parse(Matches["event"].ToString());
 				if (i >= eventInfos.Count) {
 					AnswerWithNotice(n, e, "There is no such event.");
@@ -319,12 +303,13 @@ namespace Abbot.Plugins {
 				eventinfo.There.Clear();
 				eventinfo.MaybeThere.Clear();
 				eventinfo.NotThere.Clear();
-				Save(eventInfos);
+				eventInfos.Sort(new EventInfoComparer());
+				SaveToFile<List<EventInfo>>(eventInfos, "Events");
 				AnswerWithNotice(n, e, "I cleared the event.");
 				return;
 			}
 			else if (IsMatch("^edit event \\[(?<event>\\d{1,3})\\] (?<day>\\d{1,2})\\.(?<month>\\d{1,2})\\.(?<year>\\d{4}) (?<hour>\\d{1,2}):(?<minute>\\d{1,2}) (?<text>.*)$", e.Data.Message)) {
-				List<EventInfo> eventInfos = Load();
+				List<EventInfo> eventInfos = LoadFromFile<List<EventInfo>>("Events");
 				int i = int.Parse(Matches["event"].ToString());
 				if (i >= eventInfos.Count) {
 					AnswerWithNotice(n, e, "There is no such event.");
@@ -334,7 +319,8 @@ namespace Abbot.Plugins {
 				DateTime d = new DateTime(int.Parse(Matches["year"].ToString()), int.Parse(Matches["month"].ToString()), int.Parse(Matches["day"].ToString()), int.Parse(Matches["hour"].ToString()), int.Parse(Matches["minute"].ToString()), 0);
 				eventinfo.Date = d;
 				eventinfo.Text = Matches["text"].ToString();
-				Save(eventInfos);
+				eventInfos.Sort(new EventInfoComparer());
+				SaveToFile<List<EventInfo>>(eventInfos, "Events");
 				AnswerWithNotice(n, e, "I edited the event.");
 				return;
 			}

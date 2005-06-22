@@ -38,7 +38,7 @@ namespace Abbot.Plugins {
 			Bot.OnPart += new PartEventHandler(Bot_OnPart);
 			Bot.OnQuit += new QuitEventHandler(Bot_OnQuit);
 			Bot.OnNickChange += new NickChangeEventHandler(Bot_OnNickChange);
-			l=Load();
+			l = LoadFromFile < List<SeenInfo>>("Seen");
 		}
 		#endregion
 
@@ -76,33 +76,8 @@ namespace Abbot.Plugins {
 			if (!i.Names.Contains(nick))
 				i.Names.Add(nick);
 
-			Save(l);
+			SaveToFile<List<SeenInfo>>(l, "Seen");
 		}
-
-		#region " Load/Save (Serialization) "
-		public void Save(List<SeenInfo> l) {
-			try {
-				StreamWriter f = new StreamWriter("Data\\Seen.xml", false);
-				new XmlSerializer(typeof(List<SeenInfo>)).Serialize(f, l);
-				f.Close();
-			} catch (Exception e) {
-				Console.WriteLine("#" + e.Message);
-			}
-		}
-
-		public List<SeenInfo> Load() {
-			List<SeenInfo> l;
-			try {
-				FileStream f = new FileStream("Data\\Seen.xml", FileMode.Open);
-				l = (List<SeenInfo>)new XmlSerializer(typeof(List<SeenInfo>)).Deserialize(f);
-				f.Close();
-			} catch (Exception e) {
-				Console.WriteLine("#" + e.Message);
-				l = new List<SeenInfo>();
-			}
-			return l;
-		}
-		#endregion
 
 		#region " SeenInfo Class "
 		[Serializable]
@@ -187,8 +162,8 @@ namespace Abbot.Plugins {
 					Answer(network, e, "I saw " + Matches["nick"].ToString() + " " + Convert.ToInt16(t.TotalHours).ToString() + " " + hour + " and " + t.Minutes.ToString() + " " + minute + " ago, " + i.Text + ".");
 				}
 			}
-			else
-				NewSeen(network.Name, e.Data.Nick, e.Data.Ident, "on " + e.Data.Channel + ", saying " + e.Data.Message);
+
+			NewSeen(network.Name, e.Data.Nick, e.Data.Ident, "on " + e.Data.Channel + ", saying " + e.Data.Message);
 		}
 
 		void Bot_OnJoin(Network network, Irc.JoinEventArgs e) {

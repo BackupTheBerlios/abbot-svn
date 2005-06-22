@@ -25,4 +25,4 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyTitle("Tell Plugin")]
 [assembly: AssemblyDescription("A plugin for the Abbot IRC Bot. Visit http://abbot.berlios.de for information.")]
 [assembly: AssemblyCompany("Hannes Sachsenhofer")]
-[assembly: AssemblyVersion("1.2.0.*")]
+[assembly: AssemblyVersion("1.2.1.*")]

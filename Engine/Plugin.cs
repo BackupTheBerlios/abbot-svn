@@ -17,8 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.IO;
+using System.Xml.Serialization;
+using System.Reflection;
 
 namespace Abbot {
 	public abstract class Plugin {
@@ -46,9 +50,7 @@ namespace Abbot {
 			set {
 				matches = value;
 			}
-		} 
-
-
+		}
 		#endregion
 
 		#region " Methods "
@@ -64,7 +66,7 @@ namespace Abbot {
 			}
 		}
 
-
+		#region " Format "
 		protected internal static string Format(int i) {
 			if (i >= 10)
 				return i.ToString();
@@ -89,21 +91,23 @@ namespace Abbot {
 
 
 		protected internal static string FormatColor(string s, IrcColor foreground) {
-			return "\u0003" + ((int)foreground).ToString() + s + "\u0003" +  ((int)foreground).ToString();
+			return "\u0003" + ((int)foreground).ToString() + s + "\u0003" + ((int)foreground).ToString();
 		}
 
 
 		protected internal static string FormatColor(string s, IrcColor foreground, IrcColor background) {
 			return "\u0003" + ((int)foreground).ToString() + "," + ((int)background).ToString() + s + "\u0003" + ((int)foreground).ToString() + "," + ((int)background).ToString();
 		}
+		#endregion
 
-
+		#region " Answer "
 		protected internal static void Answer(Network n, Irc.IrcEventArgs e, string s) {
 			if (e.Data.Type == Irc.ReceiveType.QueryMessage)
 				n.SendMessage(Abbot.Irc.SendType.Message, e.Data.Nick, s);
 			else
 				n.SendMessage(Abbot.Irc.SendType.Message, e.Data.Channel, s);
 		}
+
 
 		protected internal static void Answer(Network n, Irc.JoinEventArgs e, string s) {
 			n.SendMessage(Abbot.Irc.SendType.Message, e.Data.Channel, s);
@@ -113,15 +117,51 @@ namespace Abbot {
 		protected internal static void AnswerWithNotice(Network n, Irc.IrcEventArgs e, string s) {
 			n.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, s);
 		}
-
+		#endregion
 
 		protected internal static string GetFullUser(Network n, string nick) {
 			Irc.IrcUser u = n.GetIrcUser(nick);
 			return u.Nick + "!" + u.Ident + "@" + u.Host;
 		}
+
+		#region " Load/Save (XML Serialization) "
+		public void SaveToFile<T>(T t, string file) {
+			FileStream f = null;
+			try {
+				f = new FileStream("Data\\" + file + ".xml",FileMode.OpenOrCreate);
+				new XmlSerializer(typeof(T)).Serialize(f, t);
+			} catch (Exception e) {
+				Console.WriteLine("# " + e.Message);
+			} finally {
+				if (f != null)
+					f.Close();
+			}
+		}
+
+		public T LoadFromFile<T>(string file) {
+			T t;
+			FileStream f = null;
+			bool isNew = false;
+			try {
+				f = new FileStream("Data\\" + file + ".xml", FileMode.Open);
+				t = (T)new XmlSerializer(typeof(T)).Deserialize(f);
+			} catch (Exception e) {
+				Console.WriteLine("# " + e.Message);
+				t = Activator.CreateInstance<T>();
+				isNew = true;
+			} finally {
+				if (f != null)
+					f.Close();
+			}
+			if (isNew)
+				SaveToFile<T>(t, file);
+			return t;
+		}
+		#endregion
 		#endregion
 	}
 
+	#region " IrcColor "
 	public enum IrcColor {
 		White = 00,
 		Black = 01,
@@ -140,5 +180,6 @@ namespace Abbot {
 		Grey = 14,
 		LightGrey = 15
 	};
+	#endregion
 
 }

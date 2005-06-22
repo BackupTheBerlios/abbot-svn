@@ -110,6 +110,7 @@ namespace Abbot.Plugins {
 			if (IsMatch("^bash \\?$", e.Data.Message)) {
 				AnswerWithNotice(n, e, FormatBold("Use of Bash plugin:"));
 				AnswerWithNotice(n, e, FormatItalic("bash") + " - Prints a random quote from http://www.bash.org.");
+				AnswerWithNotice(n, e, FormatItalic("german bash") + " - Prints a random quote from http://www.german-bash.org.");
 			}
 			else if (IsMatch("^bash$", e.Data.Message)) {
 				this.n = network;

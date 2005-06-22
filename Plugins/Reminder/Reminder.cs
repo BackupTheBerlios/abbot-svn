@@ -55,7 +55,7 @@ namespace Abbot.Plugins {
 		}
 
 		void DoRemind() {
-			List<RemindInfo> l = Load();
+			List<RemindInfo> l = LoadFromFile<List<RemindInfo>>("Reminders");
 			while (l.Count > 0) {
 				List<RemindInfo> tmp = new List<RemindInfo>();
 				foreach (RemindInfo i in l) {
@@ -73,31 +73,10 @@ namespace Abbot.Plugins {
 				foreach (RemindInfo i in tmp)
 					l.Remove(i);
 				if (tmp.Count > 0)
-					Save(l);
+					SaveToFile<List<RemindInfo>>(l,"Reminders");
 				Thread.Sleep(10000);
 			}
 		}
-
-		#region " Load/Save (Serialization) "
-		public void Save(List<RemindInfo> l) {
-			StreamWriter f = new StreamWriter("Data\\Reminder.xml", false);
-			new XmlSerializer(typeof(List<RemindInfo>)).Serialize(f, l);
-			f.Close();
-		}
-
-		public List<RemindInfo> Load() {
-			List<RemindInfo> l;
-			try {
-				FileStream f = new FileStream("Data\\Reminder.xml", FileMode.Open);
-				l = (List<RemindInfo>)new XmlSerializer(typeof(List<RemindInfo>)).Deserialize(f);
-				f.Close();
-			} catch (Exception e) {
-				Console.WriteLine("# " + e.Message);
-				l = new List<RemindInfo>();
-			}
-			return l;
-		}
-		#endregion
 
 		#region " RemindInfo Class "
 		[Serializable]
@@ -178,7 +157,7 @@ namespace Abbot.Plugins {
 				AnswerWithNotice(network, e, FormatItalic("remind me at <hours>:<minutes> <message>") + " - Reminds you at the given time.");
 			}
 			else if (IsMatch("^remind me in (?<minutes>\\d{1,3}) (?<message>.*)$", e.Data.Message)) {
-				List<RemindInfo> l = Load();
+				List<RemindInfo> l = LoadFromFile<List<RemindInfo>>("Reminders");
 				RemindInfo i = new RemindInfo();
 				i.Network = network.Name;
 				i.Channel = e.Data.Channel;
@@ -187,12 +166,12 @@ namespace Abbot.Plugins {
 				i.Date = DateTime.Now.AddMinutes(int.Parse(Matches["minutes"].ToString()));
 				i.IsPrivate = e.Data.Type == Irc.ReceiveType.QueryMessage;
 				l.Add(i);
-				Save(l);
+				SaveToFile<List<RemindInfo>>(l, "Reminders");
 				StartThread();
 				AnswerWithNotice(network, e, "You will be reminded.");
 			}
 			else if (IsMatch("^remind me at (?<hours>\\d{1,2}):(?<minutes>\\d{1,2}) (?<message>.*)$",e.Data.Message)) {
-				List<RemindInfo> l = Load();
+				List<RemindInfo> l = LoadFromFile<List<RemindInfo>>("Reminders");
 				RemindInfo i = new RemindInfo();
 				i.Network = network.Name;
 				i.Channel = e.Data.Channel;
@@ -203,7 +182,7 @@ namespace Abbot.Plugins {
 					i.Date = i.Date.AddDays(1);
 				i.IsPrivate = e.Data.Type == Irc.ReceiveType.QueryMessage;
 				l.Add(i);
-				Save(l);
+				SaveToFile<List<RemindInfo>>(l, "Reminders");
 				StartThread();
 				AnswerWithNotice(network, e, "You will be reminded.");
 			}
