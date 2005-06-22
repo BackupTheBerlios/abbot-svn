@@ -40,7 +40,13 @@ namespace Abbot {
 
 			#region " Load Configuration "
 			configuration = new XmlDocument();
-			configuration.Load("Configuration.xml");
+			try {
+				configuration.Load("Configuration.xml");
+			} catch (Exception e) {
+				Console.WriteLine("# Cannot load the configuration file: " + e.Message);
+				Environment.Exit(-1);
+				return;
+			}
 
 			foreach (XmlElement e in configuration.GetElementsByTagName("Network")) {
 				Network n = new Network();
@@ -120,6 +126,7 @@ namespace Abbot {
 					Assembly a = System.Reflection.Assembly.LoadFile(f.FullName);
 					foreach (Type t in a.GetTypes())
 						if (t.BaseType == typeof(Plugin)) {
+							Console.WriteLine("\t\t- " + t.Name);
 							Plugin p = (Plugin)Activator.CreateInstance(t, o);
 							plugins.Add(p);
 						}
@@ -146,6 +153,13 @@ namespace Abbot {
 		public void DisconnectAll() {
 			foreach (Network n in Networks)
 				n.Disconnect();
+
+
+
+
+			System.IO.StreamWriter w = new System.IO.StreamWriter("c:\\log.txt",false);
+
+			w.Close();
 		}
 		#endregion
 
@@ -485,3 +499,4 @@ namespace Abbot {
 	public delegate void DisconnectedEventHandler(Network network, EventArgs e);
 	#endregion
 }
+

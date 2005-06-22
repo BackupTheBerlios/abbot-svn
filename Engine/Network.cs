@@ -62,8 +62,10 @@ namespace Abbot {
 		}
 
 		public new void Disconnect() {
-			RfcQuit("Abbot IRC bot [http://abbot.berlios.de]");
-			base.Disconnect();
+			if (IsConnected) {
+				RfcQuit("Abbot IRC bot [http://abbot.berlios.de]");
+				base.Disconnect();
+			}
 		}
 		#endregion
 
