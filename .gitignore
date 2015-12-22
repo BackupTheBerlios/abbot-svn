@@ -1,0 +1,6 @@
+**/bin/
+**/obj/
+*.userprefs
+*.csproj.user
+*.suo
+Guis/Console/Configuration.xml
