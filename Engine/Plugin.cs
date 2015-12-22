@@ -23,6 +23,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Xml.Serialization;
 using System.Reflection;
+using Meebey.SmartIrc4net;
 
 namespace Abbot {
 	public abstract class Plugin {
@@ -101,26 +102,26 @@ namespace Abbot {
 		#endregion
 
 		#region " Answer "
-		protected internal static void Answer(Network n, Irc.IrcEventArgs e, string s) {
-			if (e.Data.Type == Irc.ReceiveType.QueryMessage)
-				n.SendMessage(Abbot.Irc.SendType.Message, e.Data.Nick, s);
+		protected internal static void Answer(Network n, IrcEventArgs e, string s) {
+			if (e.Data.Type == ReceiveType.QueryMessage)
+				n.SendMessage(SendType.Message, e.Data.Nick, s);
 			else
-				n.SendMessage(Abbot.Irc.SendType.Message, e.Data.Channel, s);
+				n.SendMessage(SendType.Message, e.Data.Channel, s);
 		}
 
 
-		protected internal static void Answer(Network n, Irc.JoinEventArgs e, string s) {
-			n.SendMessage(Abbot.Irc.SendType.Message, e.Data.Channel, s);
+		protected internal static void Answer(Network n, JoinEventArgs e, string s) {
+			n.SendMessage(SendType.Message, e.Data.Channel, s);
 		}
 
 
-		protected internal static void AnswerWithNotice(Network n, Irc.IrcEventArgs e, string s) {
-			n.SendMessage(Abbot.Irc.SendType.Notice, e.Data.Nick, s);
+		protected internal static void AnswerWithNotice(Network n, IrcEventArgs e, string s) {
+			n.SendMessage(SendType.Notice, e.Data.Nick, s);
 		}
 		#endregion
 
 		protected internal static string GetFullUser(Network n, string nick) {
-			Irc.IrcUser u = n.GetIrcUser(nick);
+			IrcUser u = n.GetIrcUser(nick);
 			return u.Nick + "!" + u.Ident + "@" + u.Host;
 		}
 

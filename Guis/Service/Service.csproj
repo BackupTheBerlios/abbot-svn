@@ -8,7 +8,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Service</RootNamespace>
     <AssemblyName>Service</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -39,8 +39,6 @@
     <FxCopUseTypeNameInSuppression>true</FxCopUseTypeNameInSuppression>
     <FxCopModuleSuppressionsFile>ModuleSuppressions.cs</FxCopModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <LangVersion>
-    </LangVersion>
     <BaseAddress>4194304</BaseAddress>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
@@ -73,8 +71,6 @@
     <FxCopUseTypeNameInSuppression>true</FxCopUseTypeNameInSuppression>
     <FxCopModuleSuppressionsFile>ModuleSuppressions.cs</FxCopModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <LangVersion>
-    </LangVersion>
     <BaseAddress>4194304</BaseAddress>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
@@ -105,8 +101,6 @@
     <FxCopUseTypeNameInSuppression>true</FxCopUseTypeNameInSuppression>
     <FxCopModuleSuppressionsFile>ModuleSuppressions.cs</FxCopModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <LangVersion>
-    </LangVersion>
     <BaseAddress>4194304</BaseAddress>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
@@ -138,8 +132,6 @@
     <FxCopUseTypeNameInSuppression>true</FxCopUseTypeNameInSuppression>
     <FxCopModuleSuppressionsFile>ModuleSuppressions.cs</FxCopModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <LangVersion>
-    </LangVersion>
     <BaseAddress>4194304</BaseAddress>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>

@@ -167,6 +167,10 @@
       <Project>{BE3255DB-4C44-47D0-B217-DDB05403850B}</Project>
       <Name>Engine</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\SmartIrc4net.git\SmartIrc4net.csproj">
+      <Project>{91D3003B-7E65-4EAF-8EE1-DA43832E7A9C}</Project>
+      <Name>SmartIrc4net</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

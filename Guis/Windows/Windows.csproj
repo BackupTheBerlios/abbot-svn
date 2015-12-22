@@ -9,7 +9,7 @@
     <RootNamespace>Windows</RootNamespace>
     <AssemblyName>Windows</AssemblyName>
     <ApplicationIcon>Abbot Windows GUI.ico</ApplicationIcon>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,8 +40,6 @@
     <FxCopUseTypeNameInSuppression>true</FxCopUseTypeNameInSuppression>
     <FxCopModuleSuppressionsFile>ModuleSuppressions.cs</FxCopModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <LangVersion>
-    </LangVersion>
     <BaseAddress>4194304</BaseAddress>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
@@ -74,8 +72,6 @@
     <FxCopUseTypeNameInSuppression>true</FxCopUseTypeNameInSuppression>
     <FxCopModuleSuppressionsFile>ModuleSuppressions.cs</FxCopModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <LangVersion>
-    </LangVersion>
     <BaseAddress>4194304</BaseAddress>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
@@ -106,8 +102,6 @@
     <FxCopUseTypeNameInSuppression>true</FxCopUseTypeNameInSuppression>
     <FxCopModuleSuppressionsFile>ModuleSuppressions.cs</FxCopModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <LangVersion>
-    </LangVersion>
     <BaseAddress>4194304</BaseAddress>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
@@ -139,8 +133,6 @@
     <FxCopUseTypeNameInSuppression>true</FxCopUseTypeNameInSuppression>
     <FxCopModuleSuppressionsFile>ModuleSuppressions.cs</FxCopModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <LangVersion>
-    </LangVersion>
     <BaseAddress>4194304</BaseAddress>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
@@ -164,7 +156,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -173,6 +164,10 @@
     <ProjectReference Include="..\..\Engine\Engine.csproj">
       <Project>{BE3255DB-4C44-47D0-B217-DDB05403850B}</Project>
       <Name>Engine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\SmartIrc4net.git\SmartIrc4net.csproj">
+      <Project>{91D3003B-7E65-4EAF-8EE1-DA43832E7A9C}</Project>
+      <Name>SmartIrc4net</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

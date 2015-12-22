@@ -22,6 +22,7 @@ using System.Xml;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Reflection;
+using Meebey.SmartIrc4net;
 
 namespace Abbot {
 	public class Bot : IDisposable {
@@ -71,50 +72,50 @@ namespace Abbot {
 					n.Channels.Add(f.Attributes["Name"].Value);
 
 
-				n.OnBan += new Irc.BanEventHandler(OnBanHandler);
-				n.OnChannelAction += new Irc.ActionEventHandler(OnChannelActionHandler);
-				n.OnChannelActiveSynced += new Irc.IrcEventHandler(OnChannelActiveSyncedHandler);
-				n.OnChannelMessage += new Irc.IrcEventHandler(OnChannelMessageHandler);
-				n.OnChannelModeChange += new Irc.IrcEventHandler(OnChannelModeChangeHandler);
-				n.OnChannelNotice += new Irc.IrcEventHandler(OnChannelNoticeHandler);
-				n.OnChannelPassiveSynced += new Irc.IrcEventHandler(OnChannelPassiveSyncedHandler);
+				n.OnBan += new BanEventHandler(OnBanHandler);
+				n.OnChannelAction += new ActionEventHandler(OnChannelActionHandler);
+				n.OnChannelActiveSynced += new IrcEventHandler(OnChannelActiveSyncedHandler);
+				n.OnChannelMessage += new IrcEventHandler(OnChannelMessageHandler);
+				n.OnChannelModeChange += new EventHandler<ChannelModeChangeEventArgs>(OnChannelModeChangeHandler);
+				n.OnChannelNotice += new IrcEventHandler(OnChannelNoticeHandler);
+				n.OnChannelPassiveSynced += new IrcEventHandler(OnChannelPassiveSyncedHandler);
 				n.OnConnected += new EventHandler(OnConnectedHandler);
 				n.OnConnecting += new EventHandler(OnConnectingHandler);
 				n.OnConnectionError += new EventHandler(OnConnectionErrorHandler);
-				n.OnCtcpReply += new Irc.IrcEventHandler(OnCtcpReplyHandler);
-				n.OnCtcpRequest += new Irc.IrcEventHandler(OnCtcpRequestHandler);
-				n.OnDehalfop += new Irc.DehalfopEventHandler(OnDehalfopHandler);
-				n.OnDeop += new Irc.DeopEventHandler(OnDeopHandler);
-				n.OnDevoice += new Irc.DevoiceEventHandler(OnDevoiceHandler);
+				n.OnCtcpReply += new CtcpEventHandler(OnCtcpReplyHandler);
+				n.OnCtcpRequest += new CtcpEventHandler(OnCtcpRequestHandler);
+				n.OnDehalfop += new DehalfopEventHandler(OnDehalfopHandler);
+				n.OnDeop += new DeopEventHandler(OnDeopHandler);
+				n.OnDevoice += new DevoiceEventHandler(OnDevoiceHandler);
 				n.OnDisconnected += new EventHandler(OnDisconnectedHandler);
 				n.OnDisconnecting += new EventHandler(OnDisconnectingHandler);
-				n.OnError += new Irc.ErrorEventHandler(OnErrorHandler);
-				n.OnErrorMessage += new Irc.IrcEventHandler(OnErrorMessageHandler);
-				n.OnHalfop += new Irc.HalfopEventHandler(OnHalfopHandler);
-				n.OnInvite += new Irc.InviteEventHandler(OnInviteHandler);
-				n.OnJoin += new Irc.JoinEventHandler(OnJoinHandler);
-				n.OnKick += new Irc.KickEventHandler(OnKickHandler);
-				n.OnModeChange += new Irc.IrcEventHandler(OnModeChangeHandler);
-				n.OnMotd += new Irc.MotdEventHandler(OnMotdHandler);
-				n.OnNames += new Irc.NamesEventHandler(OnNamesHandler);
-				n.OnNickChange += new Irc.NickChangeEventHandler(OnNickChangeHandler);
-				n.OnOp += new Irc.OpEventHandler(OnOpHandler);
-				n.OnPart += new Irc.PartEventHandler(OnPartHandler);
-				n.OnPing += new Irc.PingEventHandler(OnPingHandler);
-				n.OnQueryAction += new Irc.ActionEventHandler(OnQueryActionHandler);
-				n.OnQueryMessage += new Irc.IrcEventHandler(OnQueryMessageHandler);
-				n.OnQueryNotice += new Irc.IrcEventHandler(OnQueryNoticeHandler);
-				n.OnQuit += new Irc.QuitEventHandler(OnQuitHandler);
-				n.OnRawMessage += new Irc.IrcEventHandler(OnRawMessageHandler);
-				n.OnReadLine += new Irc.ReadLineEventHandler(OnReadLineHandler);
+				n.OnError += new ErrorEventHandler(OnErrorHandler);
+				n.OnErrorMessage += new IrcEventHandler(OnErrorMessageHandler);
+				n.OnHalfop += new HalfopEventHandler(OnHalfopHandler);
+				n.OnInvite += new InviteEventHandler(OnInviteHandler);
+				n.OnJoin += new JoinEventHandler(OnJoinHandler);
+				n.OnKick += new KickEventHandler(OnKickHandler);
+				n.OnModeChange += new IrcEventHandler(OnModeChangeHandler);
+				n.OnMotd += new MotdEventHandler(OnMotdHandler);
+				n.OnNames += new NamesEventHandler(OnNamesHandler);
+				n.OnNickChange += new NickChangeEventHandler(OnNickChangeHandler);
+				n.OnOp += new OpEventHandler(OnOpHandler);
+				n.OnPart += new PartEventHandler(OnPartHandler);
+				n.OnPing += new PingEventHandler(OnPingHandler);
+				n.OnQueryAction += new ActionEventHandler(OnQueryActionHandler);
+				n.OnQueryMessage += new IrcEventHandler(OnQueryMessageHandler);
+				n.OnQueryNotice += new IrcEventHandler(OnQueryNoticeHandler);
+				n.OnQuit += new QuitEventHandler(OnQuitHandler);
+				n.OnRawMessage += new IrcEventHandler(OnRawMessageHandler);
+				n.OnReadLine += new ReadLineEventHandler(OnReadLineHandler);
 				n.OnRegistered += new EventHandler(OnRegisteredHandler);
-				n.OnTopic += new Irc.TopicEventHandler(OnTopicHandler);
-				n.OnTopicChange += new Irc.TopicChangeEventHandler(OnTopicChangeHandler);
-				n.OnUnban += new Irc.UnbanEventHandler(OnUnbanHandler);
-				n.OnUserModeChange += new Irc.IrcEventHandler(OnUserModeChangeHandler);
-				n.OnVoice += new Irc.VoiceEventHandler(OnVoiceHandler);
-				n.OnWho += new Irc.WhoEventHandler(OnWhoHandler);
-				n.OnWriteLine += new Irc.WriteLineEventHandler(OnWriteLineHandler);
+				n.OnTopic += new TopicEventHandler(OnTopicHandler);
+				n.OnTopicChange += new TopicChangeEventHandler(OnTopicChangeHandler);
+				n.OnUnban += new UnbanEventHandler(OnUnbanHandler);
+				n.OnUserModeChange += new IrcEventHandler(OnUserModeChangeHandler);
+				n.OnVoice += new VoiceEventHandler(OnVoiceHandler);
+				n.OnWho += new WhoEventHandler(OnWhoHandler);
+				n.OnWriteLine += new WriteLineEventHandler(OnWriteLineHandler);
 			}
 			#endregion
 
@@ -207,37 +208,37 @@ namespace Abbot {
 		#endregion
 
 		#region " Global Event Handles "
-		void OnBanHandler(object sender, Irc.BanEventArgs e) {
+		void OnBanHandler(object sender, BanEventArgs e) {
 			if (OnBan != null)
 				OnBan((Network)sender, e);
 		}
 
-		void OnChannelActionHandler(object sender, Irc.ActionEventArgs e) {
+		void OnChannelActionHandler(object sender, ActionEventArgs e) {
 			if (OnChannelAction != null)
 				OnChannelAction((Network)sender, e);
 		}
 
-		void OnChannelActiveSyncedHandler(object sender, Irc.IrcEventArgs e) {
+		void OnChannelActiveSyncedHandler(object sender, IrcEventArgs e) {
 			if (OnChannelActiveSynced != null)
 				OnChannelActiveSynced((Network)sender, e);
 		}
 
-		void OnChannelMessageHandler(object sender, Irc.IrcEventArgs e) {
+		void OnChannelMessageHandler(object sender, IrcEventArgs e) {
 			if (OnChannelMessage != null)
 				OnChannelMessage((Network)sender, e);
 		}
 
-		void OnChannelModeChangeHandler(object sender, Irc.IrcEventArgs e) {
+		void OnChannelModeChangeHandler(object sender, IrcEventArgs e) {
 			if (OnChannelModeChange != null)
 				OnChannelModeChange((Network)sender, e);
 		}
 
-		void OnChannelNoticeHandler(object sender, Irc.IrcEventArgs e) {
+		void OnChannelNoticeHandler(object sender, IrcEventArgs e) {
 			if (OnChannelNotice != null)
 				OnChannelNotice((Network)sender, e);
 		}
 
-		void OnChannelPassiveSyncedHandler(object sender, Irc.IrcEventArgs e) {
+		void OnChannelPassiveSyncedHandler(object sender, IrcEventArgs e) {
 			if (OnChannelPassiveSynced != null)
 				OnChannelPassiveSynced((Network)sender, e);
 		}
@@ -257,27 +258,27 @@ namespace Abbot {
 				OnConnectionError((Network)sender, e);
 		}
 
-		void OnCtcpReplyHandler(object sender, Irc.IrcEventArgs e) {
+		void OnCtcpReplyHandler(object sender, IrcEventArgs e) {
 			if (OnCtcpReply != null)
 				OnCtcpReply((Network)sender, e);
 		}
 
-		void OnCtcpRequestHandler(object sender, Irc.IrcEventArgs e) {
+		void OnCtcpRequestHandler(object sender, IrcEventArgs e) {
 			if (OnCtcpRequest != null)
 				OnCtcpRequest((Network)sender, e);
 		}
 
-		void OnDehalfopHandler(object sender, Irc.DehalfopEventArgs e) {
+		void OnDehalfopHandler(object sender, DehalfopEventArgs e) {
 			if (OnDehalfop != null)
 				OnDehalfop((Network)sender, e);
 		}
 
-		void OnDeopHandler(object sender, Irc.DeopEventArgs e) {
+		void OnDeopHandler(object sender, DeopEventArgs e) {
 			if (OnDeop != null)
 				OnDeop((Network)sender, e);
 		}
 
-		void OnDevoiceHandler(object sender, Irc.DevoiceEventArgs e) {
+		void OnDevoiceHandler(object sender, DevoiceEventArgs e) {
 			if (OnDevoice != null)
 				OnDevoice((Network)sender, e);
 		}
@@ -292,97 +293,97 @@ namespace Abbot {
 				OnDisconnecting((Network)sender, e);
 		}
 
-		void OnErrorHandler(object sender, Irc.ErrorEventArgs e) {
+		void OnErrorHandler(object sender, ErrorEventArgs e) {
 			if (OnError != null)
 				OnError((Network)sender, e);
 		}
 
-		void OnErrorMessageHandler(object sender, Irc.IrcEventArgs e) {
+		void OnErrorMessageHandler(object sender, IrcEventArgs e) {
 			if (OnErrorMessage != null)
 				OnErrorMessage((Network)sender, e);
 		}
 
-		void OnHalfopHandler(object sender, Irc.HalfopEventArgs e) {
+		void OnHalfopHandler(object sender, HalfopEventArgs e) {
 			if (OnHalfop != null)
 				OnHalfop((Network)sender, e);
 		}
 
-		void OnInviteHandler(object sender, Irc.InviteEventArgs e) {
+		void OnInviteHandler(object sender, InviteEventArgs e) {
 			if (OnInvite != null)
 				OnInvite((Network)sender, e);
 		}
 
-		void OnJoinHandler(object sender, Irc.JoinEventArgs e) {
+		void OnJoinHandler(object sender, JoinEventArgs e) {
 			if (OnJoin != null)
 				OnJoin((Network)sender, e);
 		}
 
-		void OnKickHandler(object sender, Irc.KickEventArgs e) {
+		void OnKickHandler(object sender, KickEventArgs e) {
 			if (OnKick != null)
 				OnKick((Network)sender, e);
 		}
 
-		void OnModeChangeHandler(object sender, Irc.IrcEventArgs e) {
+		void OnModeChangeHandler(object sender, IrcEventArgs e) {
 			if (OnModeChange != null)
 				OnModeChange((Network)sender, e);
 		}
 
-		void OnMotdHandler(object sender, Irc.MotdEventArgs e) {
+		void OnMotdHandler(object sender, MotdEventArgs e) {
 			if (OnMotd != null)
 				OnMotd((Network)sender, e);
 		}
 
-		void OnNamesHandler(object sender, Irc.NamesEventArgs e) {
+		void OnNamesHandler(object sender, NamesEventArgs e) {
 			if (OnNames != null)
 				OnNames((Network)sender, e);
 		}
 
-		void OnNickChangeHandler(object sender, Irc.NickChangeEventArgs e) {
+		void OnNickChangeHandler(object sender, NickChangeEventArgs e) {
 			if (OnNickChange != null)
 				OnNickChange((Network)sender, e);
 		}
 
-		void OnOpHandler(object sender, Irc.OpEventArgs e) {
+		void OnOpHandler(object sender, OpEventArgs e) {
 			if (OnOp != null)
 				OnOp((Network)sender, e);
 		}
 
-		void OnPartHandler(object sender, Irc.PartEventArgs e) {
+		void OnPartHandler(object sender, PartEventArgs e) {
 			if (OnPart != null)
 				OnPart((Network)sender, e);
 		}
 
-		void OnPingHandler(object sender, Irc.PingEventArgs e) {
+		void OnPingHandler(object sender, PingEventArgs e) {
 			if (OnPing != null)
 				OnPing((Network)sender, e);
 		}
 
-		void OnQueryActionHandler(object sender, Irc.ActionEventArgs e) {
+		void OnQueryActionHandler(object sender, ActionEventArgs e) {
 			if (OnQueryAction != null)
 				OnQueryAction((Network)sender, e);
 		}
 
-		void OnQueryMessageHandler(object sender, Irc.IrcEventArgs e) {
+		void OnQueryMessageHandler(object sender, IrcEventArgs e) {
 			if (OnQueryMessage != null)
 				OnQueryMessage((Network)sender, e);
 		}
 
-		void OnQueryNoticeHandler(object sender, Irc.IrcEventArgs e) {
+		void OnQueryNoticeHandler(object sender, IrcEventArgs e) {
 			if (OnQueryNotice != null)
 				OnQueryNotice((Network)sender, e);
 		}
 
-		void OnQuitHandler(object sender, Irc.QuitEventArgs e) {
+		void OnQuitHandler(object sender, QuitEventArgs e) {
 			if (OnQuit != null)
 				OnQuit((Network)sender, e);
 		}
 
-		void OnRawMessageHandler(object sender, Irc.IrcEventArgs e) {
+		void OnRawMessageHandler(object sender, IrcEventArgs e) {
 			if (OnRawMessage != null)
 				OnRawMessage((Network)sender, e);
 		}
 
-		void OnReadLineHandler(object sender, Irc.ReadLineEventArgs e) {
+		void OnReadLineHandler(object sender, ReadLineEventArgs e) {
 			if (OnReadLine != null)
 				OnReadLine((Network)sender, e);
 		}
@@ -392,37 +393,37 @@ namespace Abbot {
 				OnRegistered((Network)sender, e);
 		}
 
-		void OnTopicHandler(object sender, Irc.TopicEventArgs e) {
+		void OnTopicHandler(object sender, TopicEventArgs e) {
 			if (OnTopic != null)
 				OnTopic((Network)sender, e);
 		}
 
-		void OnTopicChangeHandler(object sender, Irc.TopicChangeEventArgs e) {
+		void OnTopicChangeHandler(object sender, TopicChangeEventArgs e) {
 			if (OnTopicChange != null)
 				OnTopicChange((Network)sender, e);
 		}
 
-		void OnUnbanHandler(object sender, Irc.UnbanEventArgs e) {
+		void OnUnbanHandler(object sender, UnbanEventArgs e) {
 			if (OnUnban != null)
 				OnUnban((Network)sender, e);
 		}
 
-		void OnUserModeChangeHandler(object sender, Irc.IrcEventArgs e) {
+		void OnUserModeChangeHandler(object sender, IrcEventArgs e) {
 			if (OnUserModeChange != null)
 				OnUserModeChange((Network)sender, e);
 		}
 
-		void OnVoiceHandler(object sender, Irc.VoiceEventArgs e) {
+		void OnVoiceHandler(object sender, VoiceEventArgs e) {
 			if (OnVoice != null)
 				OnVoice((Network)sender, e);
 		}
 
-		void OnWhoHandler(object sender, Irc.WhoEventArgs e) {
+		void OnWhoHandler(object sender, WhoEventArgs e) {
 			if (OnWho != null)
 				OnWho((Network)sender, e);
 		}
 
-		void OnWriteLineHandler(object sender, Irc.WriteLineEventArgs e) {
+		void OnWriteLineHandler(object sender, WriteLineEventArgs e) {
 			if (OnWriteLine != null)
 				OnWriteLine((Network)sender, e);
 		}
@@ -477,33 +478,6 @@ namespace Abbot {
 
 	}
 
-	#region " Delegates "
-	public delegate void IrcEventHandler(Network network, Irc.IrcEventArgs e);
-	public delegate void ActionEventHandler(Network network, Irc.ActionEventArgs e);
-	public delegate void ErrorEventHandler(Network network, Irc.ErrorEventArgs e);
-	public delegate void PingEventHandler(Network network, Irc.PingEventArgs e);
-	public delegate void KickEventHandler(Network network, Irc.KickEventArgs e);
-	public delegate void JoinEventHandler(Network network, Irc.JoinEventArgs e);
-	public delegate void NamesEventHandler(Network network, Irc.NamesEventArgs e);
-	public delegate void PartEventHandler(Network network, Irc.PartEventArgs e);
-	public delegate void InviteEventHandler(Network network, Irc.InviteEventArgs e);
-	public delegate void OpEventHandler(Network network, Irc.OpEventArgs e);
-	public delegate void DeopEventHandler(Network network, Irc.DeopEventArgs e);
-	public delegate void HalfopEventHandler(Network network, Irc.HalfopEventArgs e);
-	public delegate void DehalfopEventHandler(Network network, Irc.DehalfopEventArgs e);
-	public delegate void VoiceEventHandler(Network network, Irc.VoiceEventArgs e);
-	public delegate void DevoiceEventHandler(Network network, Irc.DevoiceEventArgs e);
-	public delegate void BanEventHandler(Network network, Irc.BanEventArgs e);
-	public delegate void UnbanEventHandler(Network network, Irc.UnbanEventArgs e);
-	public delegate void TopicEventHandler(Network network, Irc.TopicEventArgs e);
-	public delegate void TopicChangeEventHandler(Network network, Irc.TopicChangeEventArgs e);
-	public delegate void NickChangeEventHandler(Network network, Irc.NickChangeEventArgs e);
-	public delegate void QuitEventHandler(Network network, Irc.QuitEventArgs e);
-	public delegate void WhoEventHandler(Network network, Irc.WhoEventArgs e);
-	public delegate void MotdEventHandler(Network network, Irc.MotdEventArgs e);
-	public delegate void ReadLineEventHandler(Network network, Irc.ReadLineEventArgs e);
-	public delegate void WriteLineEventHandler(Network network, Irc.WriteLineEventArgs e);
 	public delegate void DisconnectedEventHandler(Network network, EventArgs e);
-	#endregion
 }
 

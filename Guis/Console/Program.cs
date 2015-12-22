@@ -21,8 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using System;
 using System.Threading;
-using Abbot.Irc;
-
+using Meebey.SmartIrc4net;
 #endregion
 
 namespace Abbot {
@@ -32,7 +31,7 @@ namespace Abbot {
 		static Bot bot;
 		static void Main(string[] args) {
 			bot = new Bot();
-			bot.OnRawMessage+=new IrcEventHandler(bot_OnRawMessage);
+			bot.OnRawMessage += new IrcEventHandler(bot_OnRawMessage);
 			bot.ConnectAll();
 			new Thread(new ThreadStart(ReadCommand)).Start();		
 		}
@@ -44,7 +43,8 @@ namespace Abbot {
 		}
 
 
-		static void bot_OnRawMessage(Network sender, IrcEventArgs e) {
+		static void bot_OnRawMessage(object network, IrcEventArgs e) {
+			//var sender = (Network)network;
 			Console.WriteLine(e.Data.Nick + ": " + e.Data.Message);
 		}
 

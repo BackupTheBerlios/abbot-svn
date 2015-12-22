@@ -21,7 +21,7 @@ using System;
 using System.Xml;
 using System.Collections.Generic;
 using System.Threading;
-using Abbot.Irc;
+using Meebey.SmartIrc4net;
 
 namespace Abbot {
 	public class Network : IrcClient, IDisposable {

@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Meebey.SmartIrc4net;
 #endregion
 
 namespace Abbot.Plugins {
@@ -53,7 +54,8 @@ namespace Abbot.Plugins {
 			new Thread(new ThreadStart(DoReconnect)).Start();
 		}
 
-		void Bot_OnKick(Network network, Abbot.Irc.KickEventArgs e) {
+		void Bot_OnKick(object n, KickEventArgs e) {
+			var network = (Network)n;
 			if (e.Whom == network.Nickname) {
 				Console.WriteLine("Rejoining " + e.Channel + " on " + network.Name + ".");
 				network.RfcJoin(e.Channel);

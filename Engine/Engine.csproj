@@ -161,28 +161,15 @@
     <Compile Include="Bot.cs" />
     <Compile Include="Channel.cs" />
     <Compile Include="Exceptions.cs" />
-    <Compile Include="Irc\Consts.cs" />
-    <Compile Include="Irc\EventArgs.cs" />
-    <Compile Include="Irc\Exceptions.cs" />
-    <Compile Include="Irc\IrcClient\Channel.cs" />
-    <Compile Include="Irc\IrcClient\ChannelUser.cs" />
-    <Compile Include="Irc\IrcClient\Delegates.cs" />
-    <Compile Include="Irc\IrcClient\EventArgs.cs" />
-    <Compile Include="Irc\IrcClient\IrcClient.cs" />
-    <Compile Include="Irc\IrcClient\IrcMessageData.cs" />
-    <Compile Include="Irc\IrcClient\IrcUser.cs" />
-    <Compile Include="Irc\IrcClient\NonRfcChannel.cs" />
-    <Compile Include="Irc\IrcClient\NonRfcChannelUser.cs" />
-    <Compile Include="Irc\IrcCommands\IrcCommands.cs" />
-    <Compile Include="Irc\IrcCommands\Rfc2812.cs" />
-    <Compile Include="Irc\IrcConnection\Delegates.cs" />
-    <Compile Include="Irc\IrcConnection\EventArgs.cs" />
-    <Compile Include="Irc\IrcConnection\IrcConnection.cs" />
-    <Compile Include="Irc\IrcConnection\IrcTcpClient.cs" />
-    <Compile Include="Irc\Logger.cs" />
     <Compile Include="Network.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\..\SmartIrc4net.git\SmartIrc4net.csproj">
+      <Project>{91D3003B-7E65-4EAF-8EE1-DA43832E7A9C}</Project>
+      <Name>SmartIrc4net</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

@@ -22,6 +22,7 @@ using System.IO;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Meebey.SmartIrc4net;
 #endregion
 
 namespace Abbot.Plugins {
@@ -38,14 +39,16 @@ namespace Abbot.Plugins {
 		#endregion
 
 		#region " Event handles "
-		void Bot_OnRawMessage(Network network, Irc.IrcEventArgs e) {
+		void Bot_OnRawMessage(object network, IrcEventArgs e) {
+			var n = (Network)network;
 			DateTime d = DateTime.Now;
 			System.IO.StreamWriter writer = new System.IO.StreamWriter("Logs" + Path.DirectorySeparatorChar + d.Year + "." + d.Month + "." + d.Day + ".log", true);
 			writer.WriteLine(((TimeSpan)(DateTime.Now - new DateTime(1970, 1, 1))).TotalMilliseconds.ToString() + " " + e.Data.RawMessage);
 			writer.Close();
 		}
 
-		void Bot_OnMessage(Network n, Irc.IrcEventArgs e) {
+		void Bot_OnMessage(object network, IrcEventArgs e) {
+			var n = (Network)network;
 			if (IsMatch("^log \\?$", e.Data.Message)) {
 				AnswerWithNotice(n, e, FormatBold("Use of Log plugin:"));
 				AnswerWithNotice(n, e, "No remote commands available. Every IRC command gets logged in its raw form to a file in the \\Data subdirectory.");

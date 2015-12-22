@@ -8,7 +8,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Bash</RootNamespace>
     <AssemblyName>Bash</AssemblyName>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -39,8 +39,6 @@
     <FxCopUseTypeNameInSuppression>true</FxCopUseTypeNameInSuppression>
     <FxCopModuleSuppressionsFile>ModuleSuppressions.cs</FxCopModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <LangVersion>
-    </LangVersion>
     <BaseAddress>4194304</BaseAddress>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
@@ -73,8 +71,6 @@
     <FxCopUseTypeNameInSuppression>true</FxCopUseTypeNameInSuppression>
     <FxCopModuleSuppressionsFile>ModuleSuppressions.cs</FxCopModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <LangVersion>
-    </LangVersion>
     <BaseAddress>4194304</BaseAddress>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
@@ -105,8 +101,6 @@
     <FxCopUseTypeNameInSuppression>true</FxCopUseTypeNameInSuppression>
     <FxCopModuleSuppressionsFile>ModuleSuppressions.cs</FxCopModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <LangVersion>
-    </LangVersion>
     <BaseAddress>4194304</BaseAddress>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
@@ -138,8 +132,6 @@
     <FxCopUseTypeNameInSuppression>true</FxCopUseTypeNameInSuppression>
     <FxCopModuleSuppressionsFile>ModuleSuppressions.cs</FxCopModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <LangVersion>
-    </LangVersion>
     <BaseAddress>4194304</BaseAddress>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
@@ -173,6 +165,10 @@
     <ProjectReference Include="..\..\Engine\Engine.csproj">
       <Project>{BE3255DB-4C44-47D0-B217-DDB05403850B}</Project>
       <Name>Engine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\SmartIrc4net.git\SmartIrc4net.csproj">
+      <Project>{91D3003B-7E65-4EAF-8EE1-DA43832E7A9C}</Project>
+      <Name>SmartIrc4net</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

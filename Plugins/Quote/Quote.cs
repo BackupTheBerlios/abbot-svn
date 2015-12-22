@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using System.Text.RegularExpressions;
+using Meebey.SmartIrc4net;
 #endregion
 
 namespace Abbot.Plugins {
@@ -89,8 +90,8 @@ namespace Abbot.Plugins {
 		#endregion
 
 		#region " Event handles "
-		void Bot_OnMessage(Network n, Irc.IrcEventArgs e) {
-
+		void Bot_OnMessage(object network, IrcEventArgs e) {
+			var n = (Network)network;
 			if (IsMatch("^quote \\?$", e.Data.Message)) {
 				AnswerWithNotice(n, e, FormatBold("Use of Quote plugin:"));
 				AnswerWithNotice(n, e, FormatItalic("quote") + " - Prints a random quote.");
