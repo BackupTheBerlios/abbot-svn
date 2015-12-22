@@ -126,26 +126,28 @@ namespace Abbot {
 
 		#region " Load/Save (XML Serialization) "
 		public void SaveToFile<T>(T t, string file) {
-			string fullfile = "Data\\" + file + ".xml";
-			FileStream f = null;
+			string fullfile = "Data" + Path.DirectorySeparatorChar + file + ".xml";
 			try {
-				f = new FileStream(file, FileMode.OpenOrCreate);
-				new XmlSerializer(typeof(T)).Serialize(f, t);
+				using (var f = new FileStream(fullfile, FileMode.OpenOrCreate, FileAccess.Write))
+				{
+					new XmlSerializer(typeof(T)).Serialize(f, t);
+					f.SetLength(f.Position); // truncate
+					f.Close();
+				}
 			} catch (Exception e) {
 				Console.WriteLine("# Cannot save to file '" + fullfile + "': " + e.Message);
-			} finally {
-				if (f != null)
-					f.Close();
+				var str = string.Format ("Wrror when saving to file {0}", fullfile);
+				throw new ApplicationException(str, e);
 			}
 		}
 
 		public T LoadFromFile<T>(string file) {
-			string fullfile = "Data\\" + file + ".xml";
+			string fullfile = "Data"+ Path.DirectorySeparatorChar + file + ".xml";
 			T t;
 			FileStream f = null;
 			bool isNew = false;
 			try {
-				f = new FileStream(file, FileMode.Open);
+				f = new FileStream(fullfile, FileMode.Open);
 				t = (T)new XmlSerializer(typeof(T)).Deserialize(f);
 			} catch (Exception e) {
 				Console.WriteLine("# Cannot load from file '" + fullfile + "': " + e.Message);

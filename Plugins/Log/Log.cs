@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+using System.IO;
 
 #region Using directives
 using System;
@@ -39,7 +40,7 @@ namespace Abbot.Plugins {
 		#region " Event handles "
 		void Bot_OnRawMessage(Network network, Irc.IrcEventArgs e) {
 			DateTime d = DateTime.Now;
-			System.IO.StreamWriter writer = new System.IO.StreamWriter("Logs\\" + d.Year + "." + d.Month + "." + d.Day + ".log", true);
+			System.IO.StreamWriter writer = new System.IO.StreamWriter("Logs" + Path.DirectorySeparatorChar + d.Year + "." + d.Month + "." + d.Day + ".log", true);
 			writer.WriteLine(((TimeSpan)(DateTime.Now - new DateTime(1970, 1, 1))).TotalMilliseconds.ToString() + " " + e.Data.RawMessage);
 			writer.Close();
 		}

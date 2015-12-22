@@ -127,8 +127,15 @@ namespace Abbot.Plugins {
 				t.Target = Matches["target"].ToString();
 				t.Text = Matches["message"].ToString();
 				l.Add(t);
-				SaveToFile<List<TellInfo>>(l, "Tell");
-				AnswerWithNotice(network, e, "I'll tell your message.");
+				try
+				{
+					SaveToFile<List<TellInfo>>(l, "Tell");
+					AnswerWithNotice(network, e, "I'll tell your message.");
+				}
+				catch (Exception ex)
+				{
+					AnswerWithNotice(network, e, "I will not tell your message, have some problems");
+				}
 			}
 		}
 

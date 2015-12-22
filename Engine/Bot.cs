@@ -127,8 +127,15 @@ namespace Abbot {
 					foreach (Type t in a.GetTypes())
 						if (t.BaseType == typeof(Plugin)) {
 							Console.WriteLine("\t\t- " + t.Name);
+							try
+							{
 							Plugin p = (Plugin)Activator.CreateInstance(t, o);
 							plugins.Add(p);
+							}
+							catch (Exception ex)
+							{
+								Console.WriteLine(ex.ToString());
+							}
 						}
 				}
 			Console.WriteLine("===============================================================================");
