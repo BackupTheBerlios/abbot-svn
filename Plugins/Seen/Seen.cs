@@ -150,18 +150,23 @@ namespace Abbot.Plugins {
 			else if (IsMatch("^seen (?<nick>.*)$", e.Data.Message)) {
 				SeenInfo i = FindName(network.Name, Matches["nick"].ToString(), l);
 				if (i == null)
-					Answer(network, e, "I never saw " + Matches["nick"].ToString() + " before.");
+					Answer(network, e, "Ни когда не встречал " + Matches["nick"].ToString() + " ранее");
 				else if (i.Ident == e.Data.Ident)
-					Answer(network, e, "Looking for yourself, eh?");
+					Answer(network, e, "Хорошо вижу Вас прямо сейчас!");
 				else {
-					string hour = "hours";
-					string minute = "minutes";
+					string hour = "часов";
+					string minute = "минут";
 					TimeSpan t = (TimeSpan)(DateTime.Now - i.Date);
 					if (t.TotalHours == 1)
-						hour = "hour";
-					if (t.Minutes == 1)
-						minute = "minute";
-					Answer(network, e, "I saw " + Matches["nick"].ToString() + " " + Convert.ToInt16(t.TotalHours).ToString() + " " + hour + " and " + t.Minutes.ToString() + " " + minute + " ago, " + i.Text + ".");
+						hour = "час";
+					if (t.Minutes < 10 || t.Minutes > 15) {
+						var lm = (t.Minutes % 10);
+						if (lm == 1)
+							minute = "минуту";
+						if (lm == 2 || lm == 3 || lm == 4)
+							minute = "минуты";
+					}
+					Answer(network, e, "Видел " + Matches["nick"].ToString() + " " + Convert.ToInt16(t.TotalHours).ToString() + " " + hour + " " + t.Minutes.ToString() + " " + minute + " назад, " + i.Text + ".");
 				}
 			}
 
