@@ -2,18 +2,17 @@
 
 <Abbot>
     
-    <Network Name="IrcNet" Port="6667" Nickname="Abbot_" Realname="Abbot IRC Bot [http://abbot.berlios.de]" Username="Abbot" Password="" SendDelay="200">
-        <Server Address="linz.irc.at" />
-        <Server Address="vienna.irc.at" />
-        <Channel Name="#abbot-test" />
+    <Network Name="freenode" Port="6667" Nickname="VsyacheBot" Realname="VsyacheBot" Username="VsyacheBot" Password="" SendDelay="200">
+        <Server Address="irc.freenode.net" />
+        <Channel Name="##linux-ru" />
+        <Channel Name="##calculate-ru" />
     </Network>
-    
-    
+
     <Plugins>
         <AutoOp>
-            <Op>.*?!~saxx@.*\.at</Op>
+            <Op>~smuxi@broadband-77-37-160-37.nationalcablenetworks.ru</Op>
         </AutoOp>
-	<GoogleSearch Key="5y08QKNQFHJQs/JiLiGfCWbvnv3vBT8B" />
+		<GoogleSearch Key="5y08QKNQFHJQs/JiLiGfCWbvnv3vBT8B" />
     </Plugins>
 
 </Abbot>

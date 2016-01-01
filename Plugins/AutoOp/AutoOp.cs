@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 using System;
 using System.Collections.Generic;
 using System.Xml;
+using Meebey.SmartIrc4net;
 #endregion
 
 namespace Abbot.Plugins {
@@ -57,25 +58,29 @@ namespace Abbot.Plugins {
 
 
 		#region " Event handles "
-		void Bot_OnMessage(Network n, Irc.IrcEventArgs e) {
+		void Bot_OnMessage(object network, IrcEventArgs e) {
 			if (IsMatch("^autoop \\?$", e.Data.Message)) {
+				var n = (Network)network;
 				AnswerWithNotice(n, e, FormatBold("Use of AutoOp plugin:"));
 				AnswerWithNotice(n, e, "No remote commands available. All configuration has to be done manually in the Configuration.xml.");
 			}
 		}
 
 
-		void Bot_OnJoin(Network n, Irc.JoinEventArgs e) {
+		void Bot_OnJoin(object network, JoinEventArgs e) {
+			var n = (Network)network;
 			Op(n, e.Data.From, e.Data.Nick, e.Data.Channel);
 		}
 
 
-		void Bot_OnOp(Network n, Irc.OpEventArgs e) {
+		void Bot_OnOp(object network, OpEventArgs e) {
+			var n = (Network)network;
 			DeOp(n, GetFullUser(n, e.Whom), e.Whom, e.Data.Channel);
 		}
 
 
-		void Bot_OnDeop(Network n, Abbot.Irc.DeopEventArgs e) {
+		void Bot_OnDeop(object network, DeopEventArgs e) {
+			var n = (Network)network;
 			Op(n, GetFullUser(n, e.Whom), e.Whom, e.Data.Channel);
 		}
 		#endregion

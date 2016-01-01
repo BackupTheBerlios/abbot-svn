@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using System.Text.RegularExpressions;
+using Meebey.SmartIrc4net;
 #endregion
 
 namespace Abbot.Plugins {
@@ -39,7 +40,8 @@ namespace Abbot.Plugins {
 		#endregion
 
 		#region " Event handles "
-		void Bot_OnMessage(Network n, Irc.IrcEventArgs e) {
+		void Bot_OnMessage(object network, IrcEventArgs e) {
+			var n=(Network)network;
 			if (IsMatch("^Eightball \\?$", e.Data.Message)) {
 				AnswerWithNotice(n, e, FormatBold("Use of Eightball plugin:"));
 				AnswerWithNotice(n, e, FormatItalic("<Botname> <your question, at least 7 characters long>?") + " - The bot will answer.");

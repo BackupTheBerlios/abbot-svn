@@ -24,6 +24,7 @@ using System.Threading;
 using System.IO;
 using System.Xml.Serialization;
 using System.Text.RegularExpressions;
+using Meebey.SmartIrc4net;
 #endregion
 
 namespace Abbot.Plugins {
@@ -63,9 +64,9 @@ namespace Abbot.Plugins {
 						Network network = Bot.GetNetworkByName(i.Network);
 						if (network != null) {
 							if (i.IsPrivate)
-								network.SendMessage(Abbot.Irc.SendType.Message, i.User, i.User + ", time's up! " + i.Message);
+								network.SendMessage(SendType.Message, i.User, i.User + ", time's up! " + i.Message);
 							else
-								network.SendMessage(Abbot.Irc.SendType.Message, i.Channel, i.User + ", time's up! " + i.Message);
+								network.SendMessage(SendType.Message, i.Channel, i.User + ", time's up! " + i.Message);
 						}
 						tmp.Add(i);
 					}
@@ -149,7 +150,8 @@ namespace Abbot.Plugins {
 		#endregion
 
 		#region " Event Handles "
-		void Bot_OnMessage(Network network, Irc.IrcEventArgs e) {
+		void Bot_OnMessage(object n, IrcEventArgs e) {
+			var network = (Network)n;
 
 			if (IsMatch("^reminder \\?$", e.Data.Message)) {
 				AnswerWithNotice(network, e, FormatBold("Use of Reminder plugin:"));
@@ -164,7 +166,7 @@ namespace Abbot.Plugins {
 				i.User = e.Data.Nick;
 				i.Message = Matches["message"].ToString();
 				i.Date = DateTime.Now.AddMinutes(int.Parse(Matches["minutes"].ToString()));
-				i.IsPrivate = e.Data.Type == Irc.ReceiveType.QueryMessage;
+				i.IsPrivate = e.Data.Type == ReceiveType.QueryMessage;
 				l.Add(i);
 				SaveToFile<List<RemindInfo>>(l, "Reminders");
 				StartThread();
@@ -180,7 +182,7 @@ namespace Abbot.Plugins {
 				i.Date = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, int.Parse(Matches["hours"].ToString()), int.Parse(Matches["minutes"].ToString()), 0);
 				if (i.Date < DateTime.Now)
 					i.Date = i.Date.AddDays(1);
-				i.IsPrivate = e.Data.Type == Irc.ReceiveType.QueryMessage;
+				i.IsPrivate = e.Data.Type == ReceiveType.QueryMessage;
 				l.Add(i);
 				SaveToFile<List<RemindInfo>>(l, "Reminders");
 				StartThread();

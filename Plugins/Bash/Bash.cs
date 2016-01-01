@@ -24,6 +24,7 @@ using System.Threading;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.IO;
+using Meebey.SmartIrc4net;
 #endregion
 
 namespace Abbot.Plugins {
@@ -39,10 +40,10 @@ namespace Abbot.Plugins {
 
 		#region " Bash "
 		Network n;
-		Irc.IrcEventArgs e;
+		IrcEventArgs e;
 		void GetGermanBash() {
 			Network n = this.n;
-			Irc.IrcEventArgs e = this.e;
+			IrcEventArgs e = this.e;
 
 			HttpWebRequest httpReq = (HttpWebRequest)WebRequest.Create("http://german-bash.org/action/random/n/1");
 			httpReq.Method = "GET";
@@ -78,7 +79,7 @@ namespace Abbot.Plugins {
 
 		void GetBash() {
 			Network n = this.n;
-			Irc.IrcEventArgs e = this.e;
+			IrcEventArgs e = this.e;
 			HttpWebRequest httpReq = (HttpWebRequest)WebRequest.Create("http://bash.org/?random");
 			httpReq.Method = "GET";
 			WebResponse httpRes = httpReq.GetResponse();
@@ -106,19 +107,19 @@ namespace Abbot.Plugins {
 		#endregion
 
 		#region " Event handles "
-		void Bot_OnMessage(Network network, Irc.IrcEventArgs e) {
+		void Bot_OnMessage(object network, IrcEventArgs e) {
 			if (IsMatch("^bash \\?$", e.Data.Message)) {
 				AnswerWithNotice(n, e, FormatBold("Use of Bash plugin:"));
 				AnswerWithNotice(n, e, FormatItalic("bash") + " - Prints a random quote from http://www.bash.org.");
 				AnswerWithNotice(n, e, FormatItalic("german bash") + " - Prints a random quote from http://www.german-bash.org.");
 			}
 			else if (IsMatch("^bash$", e.Data.Message)) {
-				this.n = network;
+				this.n = (Network)network;
 				this.e = e;
 				new System.Threading.Thread(new ThreadStart(GetBash)).Start();
 			}
 			else if (IsMatch("^german bash$", e.Data.Message)) {
-				this.n = network;
+				this.n = (Network)network;
 				this.e = e;
 				new System.Threading.Thread(new ThreadStart(GetGermanBash)).Start();
 			}

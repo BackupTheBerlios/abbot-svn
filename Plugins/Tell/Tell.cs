@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.IO;
 using System.Xml.Serialization;
+using Meebey.SmartIrc4net;
 #endregion
 
 namespace Abbot.Plugins {
@@ -31,14 +32,14 @@ namespace Abbot.Plugins {
 		#region " Constructor/Destructor "
 		public Tell(Bot bot)
 			: base(bot) {
-			Bot.OnChannelMessage+=new IrcEventHandler(Bot_OnMessage);
+			Bot.OnChannelMessage += new IrcEventHandler(Bot_OnMessage);
 			Bot.OnQueryMessage += new IrcEventHandler(Bot_OnMessage);
 			Bot.OnJoin += new JoinEventHandler(Bot_OnJoin);
 		}
 		#endregion
 
 		#region " Tell "
-		void Check(Network network, Irc.JoinEventArgs e) {
+		void Check(Network network, JoinEventArgs e) {
 			List<TellInfo> l = LoadFromFile<List<TellInfo>>("Tell");
 			List<TellInfo> tmp = new List<TellInfo>();
 			foreach (TellInfo t in l)
@@ -112,8 +113,8 @@ namespace Abbot.Plugins {
 		#endregion
 
 		#region " Event Handles "
-		void Bot_OnMessage(Network network, Irc.IrcEventArgs e) {
-
+		void Bot_OnMessage(object n, IrcEventArgs e) {
+			var network = (Network)n;
 			if (IsMatch("^tell \\?$", e.Data.Message)) {
 				AnswerWithNotice(network, e, FormatBold("Use of Tell plugin:"));
 				AnswerWithNotice(network, e, FormatItalic("tell <recipient> <message>") + " - Tells <recipient> the <message> the next time he joins.");
@@ -127,12 +128,20 @@ namespace Abbot.Plugins {
 				t.Target = Matches["target"].ToString();
 				t.Text = Matches["message"].ToString();
 				l.Add(t);
-				SaveToFile<List<TellInfo>>(l, "Tell");
-				AnswerWithNotice(network, e, "I'll tell your message.");
+				try
+				{
+					SaveToFile<List<TellInfo>>(l, "Tell");
+					AnswerWithNotice(network, e, "I'll tell your message.");
+				}
+				catch (Exception ex)
+				{
+					AnswerWithNotice(network, e, "I will not tell your message, have some problems");
+				}
 			}
 		}
 
-		void Bot_OnJoin(Network network, Irc.JoinEventArgs e) {
+		void Bot_OnJoin(object n, JoinEventArgs e) {
+			var network = (Network)n;
 			Check(network, e);
 		}
 		#endregion

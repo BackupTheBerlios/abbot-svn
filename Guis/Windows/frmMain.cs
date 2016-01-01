@@ -25,6 +25,7 @@ using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Xml;
+using Meebey.SmartIrc4net;
 #endregion
 
 namespace Abbot {
@@ -71,7 +72,7 @@ namespace Abbot {
 			txtMessage.KeyDown += new KeyEventHandler(txtMessage_KeyDown);
 
 			bot = new Bot();
-			bot.OnRawMessage+=new IrcEventHandler(Bot_OnRawMessage);
+			bot.OnRawMessage += new IrcEventHandler(Bot_OnRawMessage);
 
 			bot.ConnectAll();
 
@@ -80,7 +81,8 @@ namespace Abbot {
 		}
 
 
-		void Bot_OnRawMessage(Network network, Irc.IrcEventArgs e) {
+		void Bot_OnRawMessage(object n, IrcEventArgs e) {
+			var network = (Network) n;
 			Console.WriteLine(e.Data.RawMessage);
 		}
 
@@ -129,7 +131,7 @@ namespace Abbot {
 
 		void txtMessage_KeyDown(object sender, KeyEventArgs e) {
 			if (e.KeyCode == Keys.Enter) {
-				bot.Networks[0].SendMessage(Abbot.Irc.SendType.Message,bot.Networks[0].Channels[0], txtMessage.Text);
+				bot.Networks[0].SendMessage(SendType.Message,bot.Networks[0].Channels[0], txtMessage.Text);
 				txtMessage.Text = "";
 			}
 		}

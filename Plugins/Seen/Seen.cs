@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.IO;
 using System.Xml.Serialization;
+using Meebey.SmartIrc4net;
 #endregion
 
 namespace Abbot.Plugins {
@@ -140,7 +141,8 @@ namespace Abbot.Plugins {
 		#endregion
 
 		#region " Event Handles "
-		void Bot_OnMessage(Network network, Irc.IrcEventArgs e) {
+		void Bot_OnMessage(object n, IrcEventArgs e) {
+			var network = (Network)n;
 			if (IsMatch("^seen \\?$", e.Data.Message)) {
 				AnswerWithNotice(network, e, FormatBold("Use of Seen plugin:"));
 				AnswerWithNotice(network, e, FormatItalic("seen <nick>") + " - Displays information when the Bot last saw <nick>.");
@@ -148,37 +150,46 @@ namespace Abbot.Plugins {
 			else if (IsMatch("^seen (?<nick>.*)$", e.Data.Message)) {
 				SeenInfo i = FindName(network.Name, Matches["nick"].ToString(), l);
 				if (i == null)
-					Answer(network, e, "I never saw " + Matches["nick"].ToString() + " before.");
+					Answer(network, e, "Ни когда не встречал " + Matches["nick"].ToString() + " ранее");
 				else if (i.Ident == e.Data.Ident)
-					Answer(network, e, "Looking for yourself, eh?");
+					Answer(network, e, "Хорошо вижу Вас прямо сейчас!");
 				else {
-					string hour = "hours";
-					string minute = "minutes";
+					string hour = "часов";
+					string minute = "минут";
 					TimeSpan t = (TimeSpan)(DateTime.Now - i.Date);
 					if (t.TotalHours == 1)
-						hour = "hour";
-					if (t.Minutes == 1)
-						minute = "minute";
-					Answer(network, e, "I saw " + Matches["nick"].ToString() + " " + Convert.ToInt16(t.TotalHours).ToString() + " " + hour + " and " + t.Minutes.ToString() + " " + minute + " ago, " + i.Text + ".");
+						hour = "час";
+					if (t.Minutes < 10 || t.Minutes > 15) {
+						var lm = (t.Minutes % 10);
+						if (lm == 1)
+							minute = "минуту";
+						if (lm == 2 || lm == 3 || lm == 4)
+							minute = "минуты";
+					}
+					Answer(network, e, "Видел " + Matches["nick"].ToString() + " " + Convert.ToInt16(t.TotalHours).ToString() + " " + hour + " " + t.Minutes.ToString() + " " + minute + " назад, " + i.Text + ".");
 				}
 			}
 
 			NewSeen(network.Name, e.Data.Nick, e.Data.Ident, "on " + e.Data.Channel + ", saying " + e.Data.Message);
 		}
 
-		void Bot_OnJoin(Network network, Irc.JoinEventArgs e) {
+		void Bot_OnJoin(object n, JoinEventArgs e) {
+			var network = (Network)n;
 			NewSeen(network.Name, e.Data.Nick, e.Data.Ident, "joining " + e.Data.Channel);
 		}
 
-		void Bot_OnPart(Network network, Irc.PartEventArgs e) {
+		void Bot_OnPart(object n, PartEventArgs e) {
+			var network = (Network)n;
 			NewSeen(network.Name, e.Data.Nick, e.Data.Ident, "leaving " + e.Data.Channel);
 		}
 
-		void Bot_OnQuit(Network network, Irc.QuitEventArgs e) {
+		void Bot_OnQuit(object n, QuitEventArgs e) {
+			var network = (Network)n;
 			NewSeen(network.Name, e.Data.Nick, e.Data.Ident, "quitting IRC (" + e.Data.Message + ")");
 		}
 
-		void Bot_OnNickChange(Network network, Irc.NickChangeEventArgs e) {
+		void Bot_OnNickChange(object n, NickChangeEventArgs e) {
+			var network = (Network)n;
 			NewSeen(network.Name, e.Data.Nick, e.Data.Ident, "changing his nick from " + e.OldNickname + " to " + e.NewNickname);
 		}
 		#endregion
